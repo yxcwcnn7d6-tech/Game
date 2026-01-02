@@ -1,5 +1,5 @@
 // Dark Defense: Vampires vs Werewolves
-// A tower defense game for mobile
+// A merge-based idle strategy defense game
 
 const gameConfig = {
     type: Phaser.AUTO,
@@ -18,98 +18,136 @@ const gameConfig = {
             debug: false
         }
     },
-    scene: [MenuScene, GameScene, GameOverScene, VictoryScene]
+    scene: [MenuScene, GameScene]
 };
 
 const game = new Phaser.Game(gameConfig);
 
 // Global game state
 let gameState = {
-    gold: 150,
-    lives: 20,
-    wave: 0,
-    score: 0,
-    selectedTowerType: null
+    gold: 100,
+    gems: 5,
+    lives: 100,
+    maxLives: 100,
+    level: 1,
+    kills: 0,
+    goldPerSecond: 0,
+    baseHealth: 100,
+    baseDamage: 10,
+    unitSlots: 12,
+    autoSpawnEnabled: false
 };
 
-// Tower types configuration
-const TOWER_TYPES = {
-    GARLIC: {
-        name: 'Garlic Cannon',
-        cost: 50,
-        damage: 15,
-        range: 120,
-        fireRate: 1000,
-        color: 0xFFFFFF,
-        bonus: { vampire: 2.0 },
-        description: '2x damage to vampires'
+// Unit types with merge progression
+const UNIT_TYPES = {
+    HUNTER: {
+        name: 'Hunter',
+        baseCost: 10,
+        baseDamage: 10,
+        baseAttackSpeed: 1.5,
+        color: 0x00FF00,
+        icon: '🏹',
+        description: 'Basic ranged unit'
     },
-    SILVER: {
-        name: 'Silver Bullets',
-        cost: 75,
-        damage: 20,
-        range: 150,
-        fireRate: 800,
-        color: 0xC0C0C0,
-        bonus: { werewolf: 2.5 },
-        description: '2.5x damage to werewolves'
+    CLERIC: {
+        name: 'Cleric',
+        baseCost: 15,
+        baseDamage: 8,
+        baseAttackSpeed: 2.0,
+        color: 0xFFFF00,
+        icon: '✝️',
+        description: 'Holy damage dealer'
     },
-    HOLY_WATER: {
-        name: 'Holy Water',
-        cost: 100,
-        damage: 25,
-        range: 100,
-        fireRate: 1200,
-        color: 0x00FFFF,
-        bonus: { vampire: 1.5, werewolf: 1.5 },
-        description: 'Good vs both'
+    WARRIOR: {
+        name: 'Warrior',
+        baseCost: 20,
+        baseDamage: 15,
+        baseAttackSpeed: 1.0,
+        color: 0xFF0000,
+        icon: '⚔️',
+        description: 'High damage melee'
     },
-    UV_LIGHT: {
-        name: 'UV Tower',
-        cost: 120,
-        damage: 10,
-        range: 140,
-        fireRate: 500,
+    MAGE: {
+        name: 'Mage',
+        baseCost: 25,
+        baseDamage: 12,
+        baseAttackSpeed: 1.8,
         color: 0x9D00FF,
-        bonus: { vampire: 1.8 },
-        slow: 0.5,
-        description: 'Slows vampires'
+        icon: '🔮',
+        description: 'Magic damage'
     }
 };
 
-// Enemy types configuration
+// Heroes with special abilities
+const HEROES = {
+    VAN_HELSING: {
+        name: 'Van Helsing',
+        damage: 50,
+        attackSpeed: 0.8,
+        ability: 'Multi-shot',
+        abilityPower: 3,
+        cost: 100,
+        color: 0xFF6600,
+        icon: '🎯',
+        unlockLevel: 1
+    },
+    PRIEST: {
+        name: 'High Priest',
+        damage: 40,
+        attackSpeed: 1.2,
+        ability: 'Holy Nova',
+        abilityPower: 80,
+        cost: 150,
+        color: 0xFFD700,
+        icon: '⚡',
+        unlockLevel: 3
+    },
+    KNIGHT: {
+        name: 'Dark Knight',
+        damage: 70,
+        attackSpeed: 1.0,
+        ability: 'Execute',
+        abilityPower: 150,
+        cost: 200,
+        color: 0x8B00FF,
+        icon: '🛡️',
+        unlockLevel: 5
+    }
+};
+
+// Enemy types
 const ENEMY_TYPES = {
     VAMPIRE: {
         name: 'Vampire',
-        health: 50,
-        speed: 80,
-        reward: 15,
-        color: 0xFF0000,
-        damage: 2
+        baseHealth: 30,
+        speed: 50,
+        reward: 5,
+        damage: 5,
+        color: 0xFF0000
     },
     WEREWOLF: {
         name: 'Werewolf',
-        health: 100,
-        speed: 60,
-        reward: 25,
-        color: 0x8B4513,
-        damage: 3
+        baseHealth: 50,
+        speed: 40,
+        reward: 8,
+        damage: 8,
+        color: 0x8B4513
+    },
+    BAT_SWARM: {
+        name: 'Bat Swarm',
+        baseHealth: 20,
+        speed: 70,
+        reward: 3,
+        damage: 3,
+        color: 0x333333
     },
     VAMPIRE_LORD: {
         name: 'Vampire Lord',
-        health: 150,
-        speed: 70,
+        baseHealth: 200,
+        speed: 35,
         reward: 50,
-        color: 0x8B0000,
-        damage: 4
-    },
-    ALPHA_WEREWOLF: {
-        name: 'Alpha Werewolf',
-        health: 200,
-        speed: 55,
-        reward: 60,
-        color: 0x654321,
-        damage: 5
+        damage: 20,
+        color: 0x8B0000
     }
 };
 
@@ -124,7 +162,7 @@ class MenuScene extends Phaser.Scene {
 
         // Title
         this.add.text(width / 2, height / 4, 'DARK DEFENSE', {
-            fontSize: '48px',
+            fontSize: '52px',
             fontStyle: 'bold',
             color: '#FF0000',
             stroke: '#000000',
@@ -132,52 +170,71 @@ class MenuScene extends Phaser.Scene {
         }).setOrigin(0.5);
 
         this.add.text(width / 2, height / 4 + 50, 'Vampires vs Werewolves', {
-            fontSize: '24px',
+            fontSize: '28px',
             color: '#FFFFFF'
+        }).setOrigin(0.5);
+
+        // Game type description
+        this.add.text(width / 2, height / 2 - 60, 'Merge & Idle Strategy Defense', {
+            fontSize: '20px',
+            color: '#FFD700',
+            fontStyle: 'bold'
         }).setOrigin(0.5);
 
         // Instructions
         const instructions = [
-            'Defend your castle from waves of',
-            'vampires and werewolves!',
+            'HOW TO PLAY:',
             '',
-            'Place towers to stop the monsters',
-            'Each tower has unique strengths',
+            '• Buy units and place them on the grid',
+            '• Drag and merge same units to level up',
+            '• Unlock and deploy powerful heroes',
+            '• Upgrade your base for bonuses',
+            '• Defend against endless monster waves',
             '',
-            'Tap to play!'
+            'Tap to start your defense!'
         ];
 
-        let yPos = height / 2;
-        instructions.forEach(line => {
+        let yPos = height / 2 - 20;
+        instructions.forEach((line, idx) => {
             this.add.text(width / 2, yPos, line, {
-                fontSize: '18px',
-                color: '#CCCCCC',
+                fontSize: idx === 0 ? '16px' : '14px',
+                color: idx === 0 ? '#00FF00' : '#CCCCCC',
+                fontStyle: idx === 0 ? 'bold' : 'normal',
                 align: 'center'
             }).setOrigin(0.5);
-            yPos += 25;
+            yPos += line === '' ? 10 : 22;
         });
 
         // Start button
-        const startButton = this.add.rectangle(width / 2, height - 100, 200, 60, 0xFF0000)
+        const startButton = this.add.rectangle(width / 2, height - 80, 220, 60, 0xFF0000)
             .setInteractive()
             .on('pointerdown', () => this.startGame());
 
-        this.add.text(width / 2, height - 100, 'START GAME', {
-            fontSize: '24px',
+        this.add.text(width / 2, height - 80, 'START GAME', {
+            fontSize: '26px',
             fontStyle: 'bold',
             color: '#FFFFFF'
         }).setOrigin(0.5);
 
-        // Hover effect
         startButton.on('pointerover', () => startButton.setFillStyle(0xFF3333));
         startButton.on('pointerout', () => startButton.setFillStyle(0xFF0000));
     }
 
     startGame() {
-        gameState.gold = 150;
-        gameState.lives = 20;
-        gameState.wave = 0;
-        gameState.score = 0;
+        // Reset game state
+        gameState = {
+            gold: 100,
+            gems: 5,
+            lives: 100,
+            maxLives: 100,
+            level: 1,
+            kills: 0,
+            goldPerSecond: 0,
+            baseHealth: 100,
+            baseDamage: 10,
+            unitSlots: 12,
+            autoSpawnEnabled: false
+        };
         this.scene.start('GameScene');
     }
 }
@@ -186,332 +243,536 @@ class MenuScene extends Phaser.Scene {
 class GameScene extends Phaser.Scene {
     constructor() {
         super({ key: 'GameScene' });
-        this.towers = [];
+        this.units = [];
+        this.heroes = [];
         this.enemies = [];
         this.projectiles = [];
-        this.path = [];
-        this.waveActive = false;
-        this.enemiesSpawned = 0;
-        this.enemiesTotal = 0;
+        this.gridSlots = [];
+        this.draggedUnit = null;
+        this.spawnTimer = 0;
+        this.goldTimer = 0;
+        this.difficultyMultiplier = 1.0;
+        this.purchasedHeroes = [];
     }
 
     create() {
         const { width, height } = this.cameras.main;
 
-        // Create path for enemies
-        this.createPath();
+        // Create game area backgrounds
+        this.add.rectangle(0, 0, width, height * 0.7, 0x0a0a1a).setOrigin(0);
+        this.add.rectangle(0, height * 0.7, width, height * 0.3, 0x2a2a3a).setOrigin(0);
 
-        // Create grid for tower placement
-        this.createGrid();
+        // Create unit grid (3x4 grid)
+        this.createUnitGrid();
 
-        // UI
+        // Create enemy path
+        this.createEnemyPath();
+
+        // Create UI
         this.createUI();
 
-        // Start first wave
-        this.time.delayedCall(1000, () => this.startNextWave());
+        // Start enemy spawning
+        this.startEnemySpawning();
+
+        // Create castle
+        this.createCastle();
+
+        // Passive gold generation
+        this.time.addEvent({
+            delay: 1000,
+            callback: () => this.generatePassiveGold(),
+            loop: true
+        });
     }
 
-    createPath() {
+    createCastle() {
         const { width, height } = this.cameras.main;
 
-        // Define path points (serpentine path)
-        this.path = [
-            { x: -50, y: height / 2 - 100 },
-            { x: 200, y: height / 2 - 100 },
-            { x: 200, y: height / 2 + 100 },
-            { x: 600, y: height / 2 + 100 },
-            { x: 600, y: height / 2 - 100 },
-            { x: width + 50, y: height / 2 - 100 }
-        ];
+        // Castle at the end of path
+        this.castle = this.add.rectangle(width - 50, height * 0.35, 40, 60, 0x654321);
+        this.add.rectangle(width - 50, height * 0.35 - 35, 30, 20, 0xFF0000);
 
-        // Draw path
-        const graphics = this.add.graphics();
-        graphics.lineStyle(60, 0x444444, 1);
-        graphics.beginPath();
-        graphics.moveTo(this.path[0].x, this.path[0].y);
-        for (let i = 1; i < this.path.length; i++) {
-            graphics.lineTo(this.path[i].x, this.path[i].y);
-        }
-        graphics.strokePath();
+        this.castleHealthBar = this.add.rectangle(width - 50, height * 0.35 + 45, 60, 8, 0x00FF00);
+        this.castleHealthBarBg = this.add.rectangle(width - 50, height * 0.35 + 45, 60, 8, 0xFF0000);
 
-        // Draw castle at the end
-        const castleX = this.path[this.path.length - 1].x - 80;
-        const castleY = this.path[this.path.length - 1].y;
-
-        this.castle = this.add.rectangle(castleX, castleY, 60, 80, 0x654321);
-        this.add.rectangle(castleX, castleY - 50, 40, 30, 0xFF0000);
-        this.add.text(castleX, castleY + 60, 'CASTLE', {
-            fontSize: '12px',
-            color: '#FFFFFF'
-        }).setOrigin(0.5);
-    }
-
-    createGrid() {
-        const { width, height } = this.cameras.main;
-        this.gridGraphics = this.add.graphics();
-        this.gridGraphics.lineStyle(1, 0x333333, 0.3);
-
-        const gridSize = 60;
-        for (let x = 0; x < width; x += gridSize) {
-            this.gridGraphics.lineBetween(x, 0, x, height);
-        }
-        for (let y = 0; y < height; y += gridSize) {
-            this.gridGraphics.lineBetween(0, y, width, y);
-        }
-
-        // Add click handler for tower placement
-        this.input.on('pointerdown', (pointer) => this.handleTowerPlacement(pointer));
-    }
-
-    createUI() {
-        const { width } = this.cameras.main;
-        const uiY = 20;
-
-        // Resources display
-        this.goldText = this.add.text(20, uiY, `Gold: ${gameState.gold}`, {
-            fontSize: '20px',
-            color: '#FFD700',
-            fontStyle: 'bold'
-        });
-
-        this.livesText = this.add.text(20, uiY + 30, `Lives: ${gameState.lives}`, {
-            fontSize: '20px',
-            color: '#FF0000',
-            fontStyle: 'bold'
-        });
-
-        this.waveText = this.add.text(20, uiY + 60, `Wave: ${gameState.wave}`, {
-            fontSize: '20px',
-            color: '#FFFFFF',
-            fontStyle: 'bold'
-        });
-
-        this.scoreText = this.add.text(20, uiY + 90, `Score: ${gameState.score}`, {
-            fontSize: '20px',
-            color: '#00FF00',
-            fontStyle: 'bold'
-        });
-
-        // Tower selection buttons
-        this.createTowerButtons();
-    }
-
-    createTowerButtons() {
-        const { width } = this.cameras.main;
-        const buttonWidth = 180;
-        const buttonHeight = 70;
-        const startX = width - 200;
-        let startY = 20;
-
-        Object.entries(TOWER_TYPES).forEach(([key, tower]) => {
-            const button = this.add.rectangle(startX, startY, buttonWidth, buttonHeight, 0x333333)
-                .setStrokeStyle(2, tower.color)
-                .setInteractive();
-
-            const text = this.add.text(startX, startY - 15, tower.name, {
-                fontSize: '14px',
-                color: '#FFFFFF',
-                fontStyle: 'bold'
-            }).setOrigin(0.5);
-
-            const cost = this.add.text(startX, startY + 5, `Cost: ${tower.cost}`, {
-                fontSize: '12px',
-                color: '#FFD700'
-            }).setOrigin(0.5);
-
-            const desc = this.add.text(startX, startY + 20, tower.description, {
-                fontSize: '10px',
-                color: '#CCCCCC'
-            }).setOrigin(0.5);
-
-            button.on('pointerdown', () => {
-                gameState.selectedTowerType = key;
-                // Highlight selected
-                this.children.list.forEach(child => {
-                    if (child.type === 'Rectangle' && child.width === buttonWidth) {
-                        child.setFillStyle(0x333333);
-                    }
-                });
-                button.setFillStyle(0x555555);
-            });
-
-            button.on('pointerover', () => {
-                if (gameState.selectedTowerType !== key) {
-                    button.setFillStyle(0x444444);
-                }
-            });
-
-            button.on('pointerout', () => {
-                if (gameState.selectedTowerType !== key) {
-                    button.setFillStyle(0x333333);
-                }
-            });
-
-            startY += buttonHeight + 10;
-        });
-    }
-
-    handleTowerPlacement(pointer) {
-        if (!gameState.selectedTowerType) return;
-
-        const towerConfig = TOWER_TYPES[gameState.selectedTowerType];
-
-        if (gameState.gold < towerConfig.cost) {
-            this.showMessage('Not enough gold!', 0xFF0000);
-            return;
-        }
-
-        // Check if position is valid (not on path, not too close to other towers)
-        if (this.isValidTowerPosition(pointer.x, pointer.y)) {
-            this.placeTower(pointer.x, pointer.y, gameState.selectedTowerType);
-            gameState.gold -= towerConfig.cost;
-            this.updateUI();
-        } else {
-            this.showMessage('Invalid position!', 0xFF0000);
-        }
-    }
-
-    isValidTowerPosition(x, y) {
-        // Check if too close to path
-        for (let i = 0; i < this.path.length - 1; i++) {
-            const p1 = this.path[i];
-            const p2 = this.path[i + 1];
-            const dist = this.distanceToSegment(x, y, p1.x, p1.y, p2.x, p2.y);
-            if (dist < 80) return false;
-        }
-
-        // Check if too close to other towers
-        for (const tower of this.towers) {
-            const dist = Phaser.Math.Distance.Between(x, y, tower.x, tower.y);
-            if (dist < 50) return false;
-        }
-
-        return true;
-    }
-
-    distanceToSegment(px, py, x1, y1, x2, y2) {
-        const dx = x2 - x1;
-        const dy = y2 - y1;
-        const t = Math.max(0, Math.min(1, ((px - x1) * dx + (py - y1) * dy) / (dx * dx + dy * dy)));
-        const nearestX = x1 + t * dx;
-        const nearestY = y1 + t * dy;
-        return Math.sqrt((px - nearestX) ** 2 + (py - nearestY) ** 2);
-    }
-
-    placeTower(x, y, type) {
-        const config = TOWER_TYPES[type];
-
-        const tower = this.add.circle(x, y, 20, config.color);
-        tower.setStrokeStyle(3, 0x000000);
-
-        // Add range indicator
-        const rangeCircle = this.add.circle(x, y, config.range, config.color, 0.1);
-        rangeCircle.setStrokeStyle(1, config.color, 0.3);
-
-        tower.towerData = {
-            type: type,
-            config: config,
-            lastFired: 0,
-            rangeCircle: rangeCircle,
-            level: 1
-        };
-
-        this.towers.push(tower);
-
-        // Add tower label
-        this.add.text(x, y + 35, config.name.split(' ')[0], {
+        this.add.text(width - 50, height * 0.35 + 60, 'CASTLE', {
             fontSize: '10px',
             color: '#FFFFFF'
         }).setOrigin(0.5);
     }
 
-    startNextWave() {
-        gameState.wave++;
-        this.waveActive = true;
-        this.enemiesSpawned = 0;
+    createUnitGrid() {
+        const { height } = this.cameras.main;
+        const startX = 60;
+        const startY = height * 0.7 + 20;
+        const slotSize = 65;
+        const cols = 6;
+        const rows = 2;
 
-        // Calculate wave difficulty
-        this.enemiesTotal = 5 + gameState.wave * 3;
+        for (let row = 0; row < rows; row++) {
+            for (let col = 0; col < cols; col++) {
+                const x = startX + col * slotSize;
+                const y = startY + row * slotSize;
 
-        this.showMessage(`Wave ${gameState.wave} incoming!`, 0xFFFF00);
+                const slot = this.add.rectangle(x, y, 60, 60, 0x333333, 0.5)
+                    .setStrokeStyle(2, 0x666666);
+
+                slot.slotData = {
+                    x: x,
+                    y: y,
+                    unit: null,
+                    index: row * cols + col
+                };
+
+                this.gridSlots.push(slot);
+            }
+        }
+    }
+
+    createEnemyPath() {
+        const { width, height } = this.cameras.main;
+
+        // Path from left to castle on right
+        this.enemyPath = [
+            { x: -50, y: height * 0.35 },
+            { x: width - 100, y: height * 0.35 }
+        ];
+
+        // Draw path
+        const graphics = this.add.graphics();
+        graphics.lineStyle(40, 0x1a1a2a, 1);
+        graphics.lineBetween(this.enemyPath[0].x, this.enemyPath[0].y,
+                            this.enemyPath[1].x, this.enemyPath[1].y);
+    }
+
+    createUI() {
+        const { width, height } = this.cameras.main;
+
+        // Top bar resources
+        const topBarBg = this.add.rectangle(0, 0, width, 50, 0x1a1a2a, 0.9).setOrigin(0);
+
+        this.goldText = this.add.text(15, 15, `💰 Gold: ${gameState.gold}`, {
+            fontSize: '18px',
+            color: '#FFD700',
+            fontStyle: 'bold'
+        });
+
+        this.gemsText = this.add.text(15, 35, `💎 Gems: ${gameState.gems}`, {
+            fontSize: '14px',
+            color: '#00FFFF'
+        });
+
+        this.livesText = this.add.text(200, 15, `❤️ Lives: ${gameState.lives}/${gameState.maxLives}`, {
+            fontSize: '18px',
+            color: '#FF0000',
+            fontStyle: 'bold'
+        });
+
+        this.levelText = this.add.text(200, 35, `📊 Level: ${gameState.level}`, {
+            fontSize: '14px',
+            color: '#FFFFFF'
+        });
+
+        this.killsText = this.add.text(380, 15, `☠️ Kills: ${gameState.kills}`, {
+            fontSize: '16px',
+            color: '#FF6600'
+        });
+
+        this.gpsText = this.add.text(380, 35, `⚡ Gold/s: ${gameState.goldPerSecond}`, {
+            fontSize: '14px',
+            color: '#00FF00'
+        });
+
+        // Unit shop buttons (right side of bottom area)
+        this.createUnitShop();
+
+        // Base upgrade button
+        this.createBaseUpgradeButton();
+
+        // Hero shop button
+        this.createHeroShopButton();
+    }
+
+    createUnitShop() {
+        const { width, height } = this.cameras.main;
+        const startX = width - 180;
+        const startY = height * 0.7 + 20;
+        const buttonHeight = 65;
+
+        let yPos = startY;
+        Object.entries(UNIT_TYPES).forEach(([key, unit]) => {
+            const cost = this.getUnitCost(key, 1);
+
+            const button = this.add.rectangle(startX, yPos, 160, 55, 0x2a2a4a)
+                .setStrokeStyle(2, unit.color)
+                .setInteractive();
+
+            const nameText = this.add.text(startX, yPos - 15, `${unit.icon} ${unit.name} Lv1`, {
+                fontSize: '14px',
+                color: '#FFFFFF',
+                fontStyle: 'bold'
+            }).setOrigin(0.5);
+
+            const costText = this.add.text(startX, yPos + 5, `💰 ${cost}`, {
+                fontSize: '13px',
+                color: '#FFD700'
+            }).setOrigin(0.5);
+
+            const dmgText = this.add.text(startX, yPos + 20, `⚔️ ${unit.baseDamage}`, {
+                fontSize: '11px',
+                color: '#FF6600'
+            }).setOrigin(0.5);
+
+            button.on('pointerdown', () => this.buyUnit(key));
+
+            button.on('pointerover', () => button.setFillStyle(0x3a3a5a));
+            button.on('pointerout', () => button.setFillStyle(0x2a2a4a));
+
+            yPos += buttonHeight;
+        });
+    }
+
+    createBaseUpgradeButton() {
+        const { width, height } = this.cameras.main;
+
+        const button = this.add.rectangle(width - 180, height - 80, 160, 35, 0x4a2a2a)
+            .setStrokeStyle(2, 0xFF6600)
+            .setInteractive();
+
+        this.add.text(width - 180, height - 80, '🏰 Upgrade Base', {
+            fontSize: '14px',
+            color: '#FFFFFF',
+            fontStyle: 'bold'
+        }).setOrigin(0.5);
+
+        button.on('pointerdown', () => this.upgradeBase());
+        button.on('pointerover', () => button.setFillStyle(0x5a3a3a));
+        button.on('pointerout', () => button.setFillStyle(0x4a2a2a));
+    }
+
+    createHeroShopButton() {
+        const { width, height } = this.cameras.main;
+
+        const button = this.add.rectangle(width - 180, height - 35, 160, 35, 0x2a4a2a)
+            .setStrokeStyle(2, 0x00FF00)
+            .setInteractive();
+
+        this.add.text(width - 180, height - 35, '⭐ Heroes', {
+            fontSize: '14px',
+            color: '#FFFFFF',
+            fontStyle: 'bold'
+        }).setOrigin(0.5);
+
+        button.on('pointerdown', () => this.openHeroShop());
+        button.on('pointerover', () => button.setFillStyle(0x3a5a3a));
+        button.on('pointerout', () => button.setFillStyle(0x2a4a2a));
+    }
+
+    getUnitCost(type, level) {
+        const base = UNIT_TYPES[type].baseCost;
+        return Math.floor(base * Math.pow(1.5, level - 1));
+    }
+
+    buyUnit(type) {
+        const cost = this.getUnitCost(type, 1);
+
+        if (gameState.gold < cost) {
+            this.showMessage('Not enough gold!', 0xFF0000);
+            return;
+        }
+
+        // Find empty slot
+        const emptySlot = this.gridSlots.find(slot => !slot.slotData.unit);
+
+        if (!emptySlot) {
+            this.showMessage('No empty slots!', 0xFF0000);
+            return;
+        }
+
+        gameState.gold -= cost;
+        this.placeUnit(emptySlot, type, 1);
         this.updateUI();
+    }
 
-        // Spawn enemies over time
-        this.spawnTimer = this.time.addEvent({
-            delay: 1500,
+    placeUnit(slot, type, level) {
+        const config = UNIT_TYPES[type];
+        const damage = Math.floor(config.baseDamage * Math.pow(1.8, level - 1));
+
+        const unit = this.add.circle(slot.slotData.x, slot.slotData.y, 25, config.color);
+        unit.setStrokeStyle(3, 0xFFFFFF);
+
+        // Level badge
+        const levelBadge = this.add.circle(slot.slotData.x + 18, slot.slotData.y - 18, 10, 0xFFFFFF);
+        const levelText = this.add.text(slot.slotData.x + 18, slot.slotData.y - 18, level, {
+            fontSize: '12px',
+            color: '#000000',
+            fontStyle: 'bold'
+        }).setOrigin(0.5);
+
+        // Icon
+        const icon = this.add.text(slot.slotData.x, slot.slotData.y, config.icon, {
+            fontSize: '24px'
+        }).setOrigin(0.5);
+
+        unit.unitData = {
+            type: type,
+            level: level,
+            config: config,
+            damage: damage,
+            attackSpeed: config.baseAttackSpeed,
+            lastAttack: 0,
+            slot: slot,
+            levelBadge: levelBadge,
+            levelText: levelText,
+            icon: icon
+        };
+
+        unit.setInteractive({ draggable: true });
+
+        // Drag events
+        this.input.on('drag', (pointer, gameObject, dragX, dragY) => {
+            if (gameObject === unit) {
+                gameObject.x = dragX;
+                gameObject.y = dragY;
+                icon.x = dragX;
+                icon.y = dragY;
+                levelBadge.x = dragX + 18;
+                levelBadge.y = dragY - 18;
+                levelText.x = dragX + 18;
+                levelText.y = dragY - 18;
+            }
+        });
+
+        this.input.on('dragend', (pointer, gameObject) => {
+            if (gameObject === unit) {
+                this.handleUnitDrop(unit);
+            }
+        });
+
+        slot.slotData.unit = unit;
+        this.units.push(unit);
+
+        this.updateGoldPerSecond();
+    }
+
+    handleUnitDrop(unit) {
+        // Find which slot we dropped on
+        let targetSlot = null;
+        let minDist = 50;
+
+        for (const slot of this.gridSlots) {
+            const dist = Phaser.Math.Distance.Between(unit.x, unit.y, slot.slotData.x, slot.slotData.y);
+            if (dist < minDist) {
+                minDist = dist;
+                targetSlot = slot;
+            }
+        }
+
+        if (!targetSlot) {
+            // Return to original slot
+            this.resetUnitPosition(unit);
+            return;
+        }
+
+        // Check if target has a unit
+        if (targetSlot.slotData.unit && targetSlot.slotData.unit !== unit) {
+            const targetUnit = targetSlot.slotData.unit;
+
+            // Check if can merge (same type and level)
+            if (targetUnit.unitData.type === unit.unitData.type &&
+                targetUnit.unitData.level === unit.unitData.level) {
+
+                // Merge!
+                this.mergeUnits(unit, targetUnit, targetSlot);
+                return;
+            }
+        }
+
+        // Swap or move
+        const oldSlot = unit.unitData.slot;
+
+        if (targetSlot.slotData.unit && targetSlot !== oldSlot) {
+            // Swap positions
+            const otherUnit = targetSlot.slotData.unit;
+            oldSlot.slotData.unit = otherUnit;
+            otherUnit.unitData.slot = oldSlot;
+            this.resetUnitPosition(otherUnit);
+        } else {
+            oldSlot.slotData.unit = null;
+        }
+
+        targetSlot.slotData.unit = unit;
+        unit.unitData.slot = targetSlot;
+        this.resetUnitPosition(unit);
+    }
+
+    mergeUnits(unit1, unit2, targetSlot) {
+        const newLevel = unit1.unitData.level + 1;
+        const type = unit1.unitData.type;
+
+        // Remove both units
+        unit1.unitData.slot.slotData.unit = null;
+        this.removeUnit(unit1);
+        this.removeUnit(unit2);
+
+        // Create new higher level unit
+        this.placeUnit(targetSlot, type, newLevel);
+
+        this.showMessage(`Merged to Level ${newLevel}!`, 0x00FF00);
+        this.updateGoldPerSecond();
+    }
+
+    removeUnit(unit) {
+        unit.unitData.levelBadge.destroy();
+        unit.unitData.levelText.destroy();
+        unit.unitData.icon.destroy();
+        unit.destroy();
+
+        const idx = this.units.indexOf(unit);
+        if (idx > -1) this.units.splice(idx, 1);
+    }
+
+    resetUnitPosition(unit) {
+        const slot = unit.unitData.slot;
+        unit.x = slot.slotData.x;
+        unit.y = slot.slotData.y;
+        unit.unitData.icon.x = slot.slotData.x;
+        unit.unitData.icon.y = slot.slotData.y;
+        unit.unitData.levelBadge.x = slot.slotData.x + 18;
+        unit.unitData.levelBadge.y = slot.slotData.y - 18;
+        unit.unitData.levelText.x = slot.slotData.x + 18;
+        unit.unitData.levelText.y = slot.slotData.y - 18;
+    }
+
+    upgradeBase() {
+        const cost = gameState.level * 200;
+
+        if (gameState.gold < cost) {
+            this.showMessage(`Need ${cost} gold!`, 0xFF0000);
+            return;
+        }
+
+        gameState.gold -= cost;
+        gameState.level++;
+        gameState.maxLives += 20;
+        gameState.lives = Math.min(gameState.lives + 20, gameState.maxLives);
+        gameState.baseDamage += 5;
+
+        this.showMessage(`Base upgraded to Level ${gameState.level}!`, 0x00FF00);
+        this.updateUI();
+    }
+
+    openHeroShop() {
+        // Simple hero purchase
+        const availableHeroes = Object.entries(HEROES).filter(([key, hero]) =>
+            hero.unlockLevel <= gameState.level && !this.purchasedHeroes.includes(key)
+        );
+
+        if (availableHeroes.length === 0) {
+            this.showMessage('No heroes available!', 0xFF0000);
+            return;
+        }
+
+        const [heroKey, hero] = availableHeroes[0];
+
+        if (gameState.gold < hero.cost) {
+            this.showMessage(`Need ${hero.cost} gold for ${hero.name}!`, 0xFF0000);
+            return;
+        }
+
+        gameState.gold -= hero.cost;
+        this.purchasedHeroes.push(heroKey);
+        this.deployHero(heroKey);
+
+        this.showMessage(`${hero.name} recruited!`, 0x00FF00);
+        this.updateUI();
+    }
+
+    deployHero(heroKey) {
+        const { height } = this.cameras.main;
+        const hero = HEROES[heroKey];
+
+        const heroSprite = this.add.circle(400, height * 0.35 - 60, 20, hero.color);
+        heroSprite.setStrokeStyle(3, 0xFFD700);
+
+        const heroIcon = this.add.text(400, height * 0.35 - 60, hero.icon, {
+            fontSize: '20px'
+        }).setOrigin(0.5);
+
+        const heroName = this.add.text(400, height * 0.35 - 85, hero.name, {
+            fontSize: '10px',
+            color: '#FFD700',
+            fontStyle: 'bold'
+        }).setOrigin(0.5);
+
+        heroSprite.heroData = {
+            key: heroKey,
+            config: hero,
+            damage: hero.damage,
+            attackSpeed: hero.attackSpeed,
+            lastAttack: 0,
+            icon: heroIcon,
+            nameText: heroName
+        };
+
+        this.heroes.push(heroSprite);
+    }
+
+    startEnemySpawning() {
+        this.time.addEvent({
+            delay: 2000,
             callback: () => this.spawnEnemy(),
-            repeat: this.enemiesTotal - 1
+            loop: true
         });
     }
 
     spawnEnemy() {
-        this.enemiesSpawned++;
+        // Difficulty increases over time
+        const types = Object.keys(ENEMY_TYPES);
+        let enemyKey;
 
-        // Determine enemy type based on wave
-        let enemyType;
         const rand = Math.random();
-
-        if (gameState.wave < 3) {
-            enemyType = rand < 0.6 ? 'VAMPIRE' : 'WEREWOLF';
-        } else if (gameState.wave < 6) {
-            if (rand < 0.4) enemyType = 'VAMPIRE';
-            else if (rand < 0.7) enemyType = 'WEREWOLF';
-            else enemyType = 'VAMPIRE_LORD';
+        if (gameState.level < 3) {
+            enemyKey = rand < 0.7 ? 'VAMPIRE' : 'WEREWOLF';
+        } else if (gameState.level < 6) {
+            if (rand < 0.4) enemyKey = 'BAT_SWARM';
+            else if (rand < 0.7) enemyKey = 'VAMPIRE';
+            else enemyKey = 'WEREWOLF';
         } else {
-            if (rand < 0.3) enemyType = 'VAMPIRE';
-            else if (rand < 0.5) enemyType = 'WEREWOLF';
-            else if (rand < 0.75) enemyType = 'VAMPIRE_LORD';
-            else enemyType = 'ALPHA_WEREWOLF';
+            if (rand < 0.3) enemyKey = 'BAT_SWARM';
+            else if (rand < 0.5) enemyKey = 'VAMPIRE';
+            else if (rand < 0.75) enemyKey = 'WEREWOLF';
+            else enemyKey = 'VAMPIRE_LORD';
         }
 
-        const config = ENEMY_TYPES[enemyType];
+        const config = ENEMY_TYPES[enemyKey];
+        const healthMultiplier = 1 + (gameState.level - 1) * 0.3;
 
-        const enemy = this.add.circle(this.path[0].x, this.path[0].y, 15, config.color);
+        const enemy = this.add.circle(this.enemyPath[0].x, this.enemyPath[0].y, 12, config.color);
         enemy.setStrokeStyle(2, 0x000000);
 
         enemy.enemyData = {
-            type: enemyType,
+            type: enemyKey,
             config: config,
-            health: config.health,
-            maxHealth: config.health,
+            health: config.baseHealth * healthMultiplier,
+            maxHealth: config.baseHealth * healthMultiplier,
             speed: config.speed,
-            pathIndex: 0,
-            slowEffect: 1.0
+            reward: config.reward
         };
 
         // Health bar
-        enemy.healthBar = this.add.rectangle(enemy.x, enemy.y - 25, 30, 4, 0x00FF00);
-        enemy.healthBarBg = this.add.rectangle(enemy.x, enemy.y - 25, 30, 4, 0xFF0000);
+        enemy.healthBar = this.add.rectangle(enemy.x, enemy.y - 20, 24, 3, 0x00FF00);
+        enemy.healthBarBg = this.add.rectangle(enemy.x, enemy.y - 20, 24, 3, 0xFF0000);
 
         this.enemies.push(enemy);
     }
 
     update(time, delta) {
-        // Update enemies
         this.updateEnemies(delta);
-
-        // Update towers
-        this.updateTowers(time);
-
-        // Update projectiles
+        this.updateUnits(time);
+        this.updateHeroes(time);
         this.updateProjectiles(delta);
-
-        // Check wave completion
-        if (this.waveActive && this.enemiesSpawned >= this.enemiesTotal && this.enemies.length === 0) {
-            this.waveActive = false;
-            gameState.gold += 50;
-            this.showMessage('Wave cleared! +50 gold', 0x00FF00);
-            this.updateUI();
-
-            if (gameState.wave >= 10) {
-                this.scene.start('VictoryScene');
-            } else {
-                this.time.delayedCall(3000, () => this.startNextWave());
-            }
-        }
-
-        // Update UI
-        this.updateUI();
+        this.updateCastleHealthBar();
     }
 
     updateEnemies(delta) {
@@ -519,94 +780,101 @@ class GameScene extends Phaser.Scene {
             const enemy = this.enemies[i];
             const data = enemy.enemyData;
 
-            // Move along path
-            const currentPoint = this.path[data.pathIndex];
-            const nextPoint = this.path[data.pathIndex + 1];
+            // Move towards castle
+            const target = this.enemyPath[1];
+            const dx = target.x - enemy.x;
+            const dy = target.y - enemy.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
 
-            if (!nextPoint) {
+            if (distance < 10) {
                 // Reached castle
                 gameState.lives -= data.config.damage;
                 this.removeEnemy(i);
 
                 if (gameState.lives <= 0) {
-                    this.scene.start('GameOverScene');
+                    this.gameOver();
                 }
                 continue;
             }
 
-            const dx = nextPoint.x - enemy.x;
-            const dy = nextPoint.y - enemy.y;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-
-            if (distance < 5) {
-                data.pathIndex++;
-            } else {
-                const speed = (data.speed * data.slowEffect * delta) / 1000;
-                enemy.x += (dx / distance) * speed;
-                enemy.y += (dy / distance) * speed;
-            }
-
-            // Reset slow effect
-            data.slowEffect = Math.min(1.0, data.slowEffect + delta / 1000);
+            const speed = (data.speed * delta) / 1000;
+            enemy.x += (dx / distance) * speed;
+            enemy.y += (dy / distance) * speed;
 
             // Update health bar
             enemy.healthBar.x = enemy.x;
-            enemy.healthBar.y = enemy.y - 25;
+            enemy.healthBar.y = enemy.y - 20;
             enemy.healthBarBg.x = enemy.x;
-            enemy.healthBarBg.y = enemy.y - 25;
+            enemy.healthBarBg.y = enemy.y - 20;
 
             const healthPercent = data.health / data.maxHealth;
             enemy.healthBar.scaleX = healthPercent;
 
             // Check if dead
             if (data.health <= 0) {
-                gameState.gold += data.config.reward;
-                gameState.score += data.config.reward * 10;
+                gameState.gold += data.reward;
+                gameState.kills++;
                 this.removeEnemy(i);
             }
         }
     }
 
-    updateTowers(time) {
-        for (const tower of this.towers) {
-            const data = tower.towerData;
+    updateUnits(time) {
+        for (const unit of this.units) {
+            const data = unit.unitData;
 
-            if (time - data.lastFired < data.config.fireRate) continue;
+            if (time - data.lastAttack < data.attackSpeed * 1000) continue;
 
-            // Find target
-            let target = null;
-            let closestDist = data.config.range;
-
-            for (const enemy of this.enemies) {
-                const dist = Phaser.Math.Distance.Between(tower.x, tower.y, enemy.x, enemy.y);
-                if (dist < closestDist) {
-                    closestDist = dist;
-                    target = enemy;
-                }
-            }
+            // Find nearest enemy
+            let target = this.findNearestEnemy(unit.x, unit.y);
 
             if (target) {
-                this.fireTower(tower, target);
-                data.lastFired = time;
+                this.fireProjectile(unit.x, unit.y, target, data.damage, 0x00FF00);
+                data.lastAttack = time;
             }
         }
     }
 
-    fireTower(tower, target) {
-        const data = tower.towerData;
+    updateHeroes(time) {
+        for (const hero of this.heroes) {
+            const data = hero.heroData;
 
-        // Create projectile
-        const projectile = this.add.circle(tower.x, tower.y, 5, data.config.color);
+            if (time - data.lastAttack < data.attackSpeed * 1000) continue;
 
-        projectile.projectileData = {
+            let target = this.findNearestEnemy(hero.x, hero.y);
+
+            if (target) {
+                this.fireProjectile(hero.x, hero.y, target, data.damage, 0xFFD700);
+                data.lastAttack = time;
+            }
+        }
+    }
+
+    findNearestEnemy(x, y) {
+        let nearest = null;
+        let minDist = 500;
+
+        for (const enemy of this.enemies) {
+            const dist = Phaser.Math.Distance.Between(x, y, enemy.x, enemy.y);
+            if (dist < minDist) {
+                minDist = dist;
+                nearest = enemy;
+            }
+        }
+
+        return nearest;
+    }
+
+    fireProjectile(x, y, target, damage, color) {
+        const proj = this.add.circle(x, y, 4, color);
+
+        proj.projectileData = {
             target: target,
-            damage: data.config.damage,
-            bonus: data.config.bonus || {},
-            slow: data.config.slow || 0,
-            speed: 300
+            damage: damage,
+            speed: 250
         };
 
-        this.projectiles.push(projectile);
+        this.projectiles.push(proj);
     }
 
     updateProjectiles(delta) {
@@ -625,20 +893,7 @@ class GameScene extends Phaser.Scene {
             const distance = Math.sqrt(dx * dx + dy * dy);
 
             if (distance < 10) {
-                // Hit target
-                const enemyType = data.target.enemyData.type.toLowerCase().includes('vampire') ? 'vampire' : 'werewolf';
-                let damage = data.damage;
-
-                if (data.bonus[enemyType]) {
-                    damage *= data.bonus[enemyType];
-                }
-
-                data.target.enemyData.health -= damage;
-
-                if (data.slow) {
-                    data.target.enemyData.slowEffect = data.slow;
-                }
-
+                data.target.enemyData.health -= data.damage;
                 proj.destroy();
                 this.projectiles.splice(i, 1);
             } else {
@@ -657,17 +912,40 @@ class GameScene extends Phaser.Scene {
         this.enemies.splice(index, 1);
     }
 
+    generatePassiveGold() {
+        const goldGain = Math.floor(gameState.goldPerSecond);
+        if (goldGain > 0) {
+            gameState.gold += goldGain;
+            this.updateUI();
+        }
+    }
+
+    updateGoldPerSecond() {
+        let total = 0;
+        for (const unit of this.units) {
+            total += unit.unitData.level * 0.5;
+        }
+        gameState.goldPerSecond = Math.floor(total);
+    }
+
+    updateCastleHealthBar() {
+        const percent = gameState.lives / gameState.maxLives;
+        this.castleHealthBar.scaleX = percent;
+    }
+
     updateUI() {
-        this.goldText.setText(`Gold: ${gameState.gold}`);
-        this.livesText.setText(`Lives: ${gameState.lives}`);
-        this.waveText.setText(`Wave: ${gameState.wave}`);
-        this.scoreText.setText(`Score: ${gameState.score}`);
+        this.goldText.setText(`💰 Gold: ${gameState.gold}`);
+        this.gemsText.setText(`💎 Gems: ${gameState.gems}`);
+        this.livesText.setText(`❤️ Lives: ${gameState.lives}/${gameState.maxLives}`);
+        this.levelText.setText(`📊 Level: ${gameState.level}`);
+        this.killsText.setText(`☠️ Kills: ${gameState.kills}`);
+        this.gpsText.setText(`⚡ Gold/s: ${gameState.goldPerSecond}`);
     }
 
     showMessage(text, color) {
         const { width, height } = this.cameras.main;
-        const msg = this.add.text(width / 2, height / 2, text, {
-            fontSize: '32px',
+        const msg = this.add.text(width / 2, height * 0.35, text, {
+            fontSize: '24px',
             color: '#' + color.toString(16).padStart(6, '0'),
             fontStyle: 'bold',
             stroke: '#000000',
@@ -677,98 +955,17 @@ class GameScene extends Phaser.Scene {
         this.tweens.add({
             targets: msg,
             alpha: 0,
-            y: height / 2 - 50,
-            duration: 2000,
+            y: height * 0.35 - 40,
+            duration: 1500,
             onComplete: () => msg.destroy()
         });
     }
-}
 
-// Game Over Scene
-class GameOverScene extends Phaser.Scene {
-    constructor() {
-        super({ key: 'GameOverScene' });
-    }
+    gameOver() {
+        this.showMessage('GAME OVER!', 0xFF0000);
 
-    create() {
-        const { width, height } = this.cameras.main;
-
-        this.add.text(width / 2, height / 3, 'GAME OVER', {
-            fontSize: '64px',
-            fontStyle: 'bold',
-            color: '#FF0000',
-            stroke: '#000000',
-            strokeThickness: 6
-        }).setOrigin(0.5);
-
-        this.add.text(width / 2, height / 2, `Final Score: ${gameState.score}`, {
-            fontSize: '32px',
-            color: '#FFFFFF'
-        }).setOrigin(0.5);
-
-        this.add.text(width / 2, height / 2 + 50, `Waves Survived: ${gameState.wave}`, {
-            fontSize: '24px',
-            color: '#CCCCCC'
-        }).setOrigin(0.5);
-
-        const retryButton = this.add.rectangle(width / 2, height - 100, 200, 60, 0xFF0000)
-            .setInteractive()
-            .on('pointerdown', () => this.scene.start('MenuScene'));
-
-        this.add.text(width / 2, height - 100, 'RETRY', {
-            fontSize: '24px',
-            fontStyle: 'bold',
-            color: '#FFFFFF'
-        }).setOrigin(0.5);
-
-        retryButton.on('pointerover', () => retryButton.setFillStyle(0xFF3333));
-        retryButton.on('pointerout', () => retryButton.setFillStyle(0xFF0000));
-    }
-}
-
-// Victory Scene
-class VictoryScene extends Phaser.Scene {
-    constructor() {
-        super({ key: 'VictoryScene' });
-    }
-
-    create() {
-        const { width, height } = this.cameras.main;
-
-        this.add.text(width / 2, height / 3, 'VICTORY!', {
-            fontSize: '64px',
-            fontStyle: 'bold',
-            color: '#00FF00',
-            stroke: '#000000',
-            strokeThickness: 6
-        }).setOrigin(0.5);
-
-        this.add.text(width / 2, height / 2 - 30, 'You defended the castle!', {
-            fontSize: '28px',
-            color: '#FFFFFF'
-        }).setOrigin(0.5);
-
-        this.add.text(width / 2, height / 2 + 20, `Final Score: ${gameState.score}`, {
-            fontSize: '32px',
-            color: '#FFD700'
-        }).setOrigin(0.5);
-
-        this.add.text(width / 2, height / 2 + 60, `Lives Remaining: ${gameState.lives}`, {
-            fontSize: '24px',
-            color: '#CCCCCC'
-        }).setOrigin(0.5);
-
-        const menuButton = this.add.rectangle(width / 2, height - 100, 200, 60, 0x00FF00)
-            .setInteractive()
-            .on('pointerdown', () => this.scene.start('MenuScene'));
-
-        this.add.text(width / 2, height - 100, 'MENU', {
-            fontSize: '24px',
-            fontStyle: 'bold',
-            color: '#000000'
-        }).setOrigin(0.5);
-
-        menuButton.on('pointerover', () => menuButton.setFillStyle(0x33FF33));
-        menuButton.on('pointerout', () => menuButton.setFillStyle(0x00FF00));
+        this.time.delayedCall(2000, () => {
+            this.scene.start('MenuScene');
+        });
     }
 }
