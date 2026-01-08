@@ -1,133 +1,228 @@
 # Dark Defense: Vampires vs Werewolves
 
-A mobile-friendly tower defense game where you defend your castle against waves of vampires and werewolves!
+A merge-based idle strategy defense game where you grow your army and defend your castle against endless waves of vampires and werewolves!
 
 ## Game Overview
 
-Similar to Kingdom Guard and Last Z, this is a tower defense game with a dark fantasy theme. Place towers strategically to stop hordes of supernatural creatures from reaching your castle.
+Inspired by Kingdom Guard and Last Z, this is a **merge and idle strategy defense game** with vampires and werewolves. Buy units, merge them to power up, unlock heroes, upgrade your base, and defend against increasingly difficult monster waves!
+
+## Core Gameplay
+
+### 🎯 Merge Mechanics
+- **Buy Units** from the shop and place them on your grid
+- **Drag & Drop** to merge two units of the same type and level
+- **Level Up** - Merging creates a stronger unit (Lv1 + Lv1 = Lv2)
+- **Power Scaling** - Higher level units deal exponentially more damage!
+
+### ⚡ Idle Progression
+- **Passive Gold** - Units generate gold per second based on their level
+- **Continuous Combat** - Units automatically attack nearby enemies
+- **Always Growing** - Keep merging and upgrading even during battle
+
+### 🏰 Base Building
+- **Upgrade Your Base** - Spend gold to increase your castle level
+- **More Lives** - Each base level adds +20 max health to your castle
+- **Better Rewards** - Higher levels unlock stronger heroes
+
+### ⭐ Heroes System
+- **Recruit Legendary Heroes** - Van Helsing, High Priest, Dark Knight
+- **Powerful Abilities** - Heroes deal massive damage automatically
+- **Level Requirements** - Unlock new heroes by upgrading your base
 
 ## Features
 
-- **4 Unique Tower Types:**
-  - **Garlic Cannon** - Cheap and effective against vampires (2x damage bonus)
-  - **Silver Bullets** - Powerful against werewolves (2.5x damage bonus)
-  - **Holy Water** - Balanced damage against both enemy types (1.5x bonus to both)
-  - **UV Tower** - Slows vampires and deals continuous damage
+### 4 Unit Types (Each with Unlimited Merge Levels!)
 
-- **4 Enemy Types:**
-  - **Vampire** - Fast but fragile, weak to garlic
-  - **Werewolf** - Strong and tanky, weak to silver
-  - **Vampire Lord** - Elite vampire with high health
-  - **Alpha Werewolf** - Powerful werewolf boss
+| Unit | Cost | Base Damage | Attack Speed | Icon |
+|------|------|-------------|--------------|------|
+| **Hunter** | 10 gold | 10 | 1.5s | 🏹 |
+| **Cleric** | 15 gold | 8 | 2.0s | ✝️ |
+| **Warrior** | 20 gold | 15 | 1.0s | ⚔️ |
+| **Mage** | 25 gold | 12 | 1.8s | 🔮 |
 
-- **Progressive Difficulty:**
-  - 10 waves of increasing difficulty
-  - More enemies and stronger types appear in later waves
-  - Strategic tower placement is key to survival
+**Merge Formula:** Damage = Base × (1.8 ^ Level)
+*Example: Level 5 Hunter = 10 × 1.8^4 = 105 damage!*
 
-- **Resource Management:**
-  - Earn gold by defeating enemies
-  - Spend gold wisely on towers
-  - Protect your castle (20 lives)
+### 3 Legendary Heroes
+
+| Hero | Cost | Damage | Unlock Level | Ability |
+|------|------|--------|--------------|---------|
+| **Van Helsing** 🎯 | 100 gold | 50 | Level 1 | Multi-shot |
+| **High Priest** ⚡ | 150 gold | 40 | Level 3 | Holy Nova |
+| **Dark Knight** 🛡️ | 200 gold | 70 | Level 5 | Execute |
+
+### 4 Enemy Types (Scaling Difficulty)
+
+| Enemy | Health | Speed | Reward | Damage to Castle |
+|-------|--------|-------|--------|------------------|
+| **Bat Swarm** | 20 | Fast | 3 gold | 3 lives |
+| **Vampire** | 30 | Fast | 5 gold | 5 lives |
+| **Werewolf** | 50 | Medium | 8 gold | 8 lives |
+| **Vampire Lord** | 200 | Slow | 50 gold | 20 lives |
+
+*Enemy health scales +30% per base level!*
 
 ## How to Play
 
-### Starting the Game
+### Setup
 
-1. Open `index.html` in a web browser (Chrome, Firefox, Safari recommended)
-2. Or run a local server:
+1. **Open in browser:**
    ```bash
+   # Open index.html directly in your browser
+   # Or run a local server:
    npm start
-   # or
+   # Or:
    python3 -m http.server 8000
    ```
-3. Visit `http://localhost:8000` in your browser
+
+2. **Visit:** `http://localhost:8000`
 
 ### Controls
 
-- **Desktop:** Click to select towers and place them
-- **Mobile:** Tap to select towers and tap the grid to place them
+**Desktop:**
+- Click unit shop buttons to buy units
+- Click and drag units to merge or rearrange
+- Click "Upgrade Base" to level up
+- Click "Heroes" to recruit heroes
 
-### Gameplay Instructions
+**Mobile:**
+- Tap to buy units
+- Drag with your finger to merge
+- Tap buttons to upgrade
 
-1. **Select a Tower** - Click/tap one of the tower buttons on the right side
-2. **Place the Tower** - Click/tap on the game grid (avoid the dark gray path)
-3. **Watch Towers Fight** - Towers automatically target and shoot enemies in range
-4. **Earn Gold** - Defeat enemies to earn gold for more towers
-5. **Survive Waves** - Defend your castle for 10 waves to win!
+### Strategy Guide
 
-### Strategy Tips
+#### Early Game (Level 1-2)
+1. **Buy Hunters** (cheapest, good damage)
+2. **Merge to Level 2-3** as soon as possible
+3. **Fill your grid** with units
+4. **Buy Van Helsing** when you have 100 gold
 
-- **Place towers at corners** where enemies slow down
-- **Mix tower types** for balanced defense against both vampires and werewolves
-- **Garlic Cannons** are cheap and great early game against vampires
-- **Silver Bullet Towers** are essential for dealing with werewolves
-- **UV Towers** are excellent for slowing vampire rushes
-- **Holy Water** towers are versatile but expensive
-- **Cover all paths** to ensure no enemy slips through
-- **Save gold** for later waves when enemies get tougher
+#### Mid Game (Level 3-5)
+1. **Upgrade your base** for more lives and better heroes
+2. **Mix unit types** - Warriors for burst, Clerics for sustained
+3. **Merge to Level 4-5** for exponential damage
+4. **Recruit High Priest** at Level 3
 
-## Game Statistics
+#### Late Game (Level 6+)
+1. **Focus on high-level units** (Level 5+)
+2. **Keep upgrading base** for survivability
+3. **Unlock Dark Knight** at Level 5
+4. **Manage your gold/second** for passive income
 
-| Tower Type | Cost | Damage | Range | Fire Rate | Special Ability |
-|------------|------|--------|-------|-----------|-----------------|
-| Garlic Cannon | 50 | 15 | 120 | 1000ms | 2x vs Vampires |
-| Silver Bullets | 75 | 20 | 150 | 800ms | 2.5x vs Werewolves |
-| Holy Water | 100 | 25 | 100 | 1200ms | 1.5x vs Both |
-| UV Tower | 120 | 10 | 140 | 500ms | Slows Vampires 50% |
+### Pro Tips
 
-| Enemy Type | Health | Speed | Reward | Damage |
-|------------|--------|-------|--------|--------|
-| Vampire | 50 | 80 | 15 gold | 2 lives |
-| Werewolf | 100 | 60 | 25 gold | 3 lives |
-| Vampire Lord | 150 | 70 | 50 gold | 4 lives |
-| Alpha Werewolf | 200 | 55 | 60 gold | 5 lives |
+- **Merge Wisely** - Two Level 5 units = One Level 6 (worth 3.2x damage!)
+- **Don't overextend** - Save gold for emergency units
+- **Grid management** - Keep space for new units and merges
+- **Base first** - Upgrade base early for hero unlocks
+- **Gold/Second** - Higher level units = more passive income
+- **Hero timing** - Heroes are expensive but worth it!
+
+## Game Systems
+
+### Progression
+- Start with 100 gold and 100 castle health
+- Enemies continuously spawn every 2 seconds
+- Earn gold by killing enemies
+- Units generate passive gold (0.5 × level) per second
+- Base upgrades cost: Level × 200 gold
+
+### Scaling
+- **Unit Damage:** Base × 1.8^(Level-1)
+- **Unit Cost:** Base × 1.5^(Level-1)
+- **Enemy Health:** Base × (1 + 0.3 × BaseLevel)
+- **Gold/Second:** Σ(Unit Level × 0.5)
+
+## UI Overview
+
+### Top Bar
+- 💰 **Gold** - Currency for buying/upgrading
+- 💎 **Gems** - Premium currency (future use)
+- ❤️ **Lives** - Castle health
+- 📊 **Level** - Base level
+- ☠️ **Kills** - Enemies defeated
+- ⚡ **Gold/s** - Passive income rate
+
+### Bottom Grid
+- **6×2 Grid** - 12 unit slots
+- **Drag & drop** interface for merging
+- **Level badges** show unit level
+- **Unit icons** show unit type
+
+### Right Panel
+- **Unit Shop** - Buy Level 1 units
+- **Upgrade Base** - Increase castle level
+- **Heroes** - Recruit legendary heroes
 
 ## Technical Details
 
 - **Framework:** Phaser 3 (v3.60.0)
-- **Platform:** HTML5 (works on desktop and mobile browsers)
-- **Resolution:** 800x600 (scales to fit screen)
-- **No installation required** - just open in a browser!
+- **Platform:** HTML5 Canvas
+- **Mobile:** Touch-optimized controls
+- **Resolution:** 800×600 (auto-scales)
+- **No installation required!**
 
 ## File Structure
 
 ```
 Game/
-├── index.html       # Main HTML file
-├── game.js          # Game logic and scenes
+├── index.html       # Main HTML entry point
+├── game.js          # Complete game logic
 ├── package.json     # Project metadata
 └── README.md        # This file
 ```
 
-## Browser Compatibility
+## Gameplay Loop
 
-- Chrome/Edge (Recommended)
-- Firefox
-- Safari
-- Mobile browsers (iOS Safari, Chrome Mobile)
+```
+Buy Units → Place on Grid → Merge Same Units → Power Up!
+    ↓                                             ↑
+Earn Gold ← Kill Enemies ← Auto-Attack ← High Level Units
+    ↓
+Upgrade Base → Unlock Heroes → Even More Power!
+```
 
 ## Future Enhancements
 
-Possible additions for future versions:
-- Tower upgrade system
-- More tower types (Stake Launcher, Moonlight Beam)
-- Boss waves with unique enemies
-- Special abilities and power-ups
-- Sound effects and background music
-- Difficulty levels
-- Achievement system
-- Save/load game progress
+- **Unit Evolution** - Transform at high levels into new types
+- **Hero Abilities** - Active skills with cooldowns
+- **Artifacts System** - Permanent upgrades
+- **Prestige Mode** - Reset for permanent bonuses
+- **More Heroes** - Expanded roster with unique abilities
+- **Boss Waves** - Special challenge enemies
+- **Sound & Music** - Audio feedback
+- **Achievements** - Goals and rewards
+- **Save System** - Persistent progress
+- **Gem Shop** - Special items and boosts
+
+## Game Balance
+
+| Level | Recommended Units | Gold/s | Survival Strategy |
+|-------|-------------------|--------|-------------------|
+| 1-2 | 6× Lv2-3 | ~10 | Basic merge, buy Van Helsing |
+| 3-4 | 8× Lv3-4 | ~25 | Mix units, recruit Priest |
+| 5-6 | 10× Lv4-5 | ~45 | High level merges, get Knight |
+| 7+ | 12× Lv5+ | ~60+ | Max efficiency, survive! |
+
+## Browser Compatibility
+
+- ✅ Chrome/Edge (Recommended)
+- ✅ Firefox
+- ✅ Safari
+- ✅ Mobile Chrome
+- ✅ Mobile Safari
 
 ## Credits
 
-Inspired by Kingdom Guard and Last Z tower defense games.
-Built with Phaser 3 game framework.
+Inspired by **Kingdom Guard** and **Last Z** merge defense games.
+Built with **Phaser 3** game framework.
+Vampire & werewolf theme for dark fantasy fans! 🧛‍♂️🐺
 
 ## License
 
-MIT License - Feel free to modify and expand!
+MIT License - Free to play, modify, and share!
 
 ---
 
-**Enjoy defending your castle from the creatures of the night!** 🧛‍♂️🐺🏰
+**Defend your castle, merge your army, and survive the night!** 🏰⚔️🌙

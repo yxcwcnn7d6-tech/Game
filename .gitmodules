@@ -1,0 +1,3 @@
+[submodule "FastCopy"]
+	path = FastCopy
+	url = https://github.com/shirouzu/FastCopy.git
