@@ -1,11 +1,16 @@
-﻿static char *shellext_id = 
-	"@(#)Copyright (C) 2005-2018 H.Shirouzu		shellext.cpp	Ver3.41";
+﻿static char *shellext_id =
+	"@(#)Copyright (C) 2005-2018 H.Shirouzu / 2026 FastCopy-Enhanced	shellext.cpp	Ver3.63E";
 /* ========================================================================
-	Project  Name			: Shell Extension for Fast Copy
+	Project  Name			: Shell Extension for Fast Copy (Enhanced)
 	Create					: 2005-01-23(Sun)
-	Update					: 2018-01-25(Thu)
-	Copyright				: H.Shirouzu
+	Update					: 2026-01-08(Wed) - Windows 11 compatibility
+	Copyright				: H.Shirouzu / FastCopy-Enhanced Contributors
 	License					: GNU General Public License version 3
+
+	Enhanced for Windows 11:
+	- Added OneDrive placeholder file detection
+	- Prevents automatic downloads when right-clicking empty OneDrive files
+	- Updated manifest for Windows 11 compatibility
 	======================================================================== */
 
 #include "../tlib/tlib.h"
@@ -18,6 +23,7 @@
 #include <shlguid.h>
 #include "shelldef.h"
 #include "shellext.h"
+#include "win11_compat.h"
 #pragma data_seg()
 
 using namespace std;
@@ -193,7 +199,14 @@ STDMETHODIMP ShellExt::Initialize(LPCITEMIDLIST pIDFolder, IDataObject *pDataObj
 
 		for (int i=0; i < max; i++) {
 			DragQueryFileW(hDrop, i, path, wsizeof(path));
-			srcArray.RegisterPath(path);
+			// Windows 11: Skip OneDrive placeholder files to prevent automatic downloads
+			// when right-clicking on empty OneDrive files
+			if (!ShouldSkipPathWin11(path)) {
+				srcArray.RegisterPath(path);
+			}
+			else {
+				DbgLogW(L"Initialize: Skipped OneDrive placeholder: %s\n", path);
+			}
 		}
 		::GlobalUnlock(medium.hGlobal);
 		::ReleaseStgMedium(&medium);

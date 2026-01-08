@@ -26,6 +26,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h" />
+    <ClInclude Include="shelldef.h" />
+    <ClInclude Include="shellext.h" />
+    <ClInclude Include="win11_compat.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="fcshext.ico" />
