@@ -364,12 +364,15 @@ Powered by Windows Robocopy";
             }
 
             // Build robocopy command
-            StringBuilder cmdBuilder = new StringBuilder();
             string optionsBase = " /R:10 /W:30 /IPG:10";
             if (chkCompress.Checked) optionsBase += " /COMPRESS";
             if (chkNewer.Checked) optionsBase += " /XO";
             string moveFlag = moveOperation ? " /MOVE" : "";
             string operation = moveOperation ? "MOVE" : "COPY";
+
+            // Separate files and directories
+            List<string> files = new List<string>();
+            List<string> directories = new List<string>();
 
             foreach (ListViewItem item in listViewLeft.SelectedItems)
             {
@@ -377,20 +380,10 @@ Powered by Windows Robocopy";
                 if (string.IsNullOrEmpty(fullPath)) continue;
 
                 if (Directory.Exists(fullPath))
-                {
-                    // Directory
-                    string dirName = Path.GetFileName(fullPath);
-                    cmdBuilder.Append($"robocopy \"{fullPath}\" \"{Path.Combine(rightPath, dirName)}\" /E{optionsBase}{moveFlag} & ");
-                }
+                    directories.Add(fullPath);
                 else
-                {
-                    // File
-                    string fileName = Path.GetFileName(fullPath);
-                    cmdBuilder.Append($"robocopy \"{leftPath}\" \"{rightPath}\" \"{fileName}\"{optionsBase}{moveFlag} & ");
-                }
+                    files.Add(fullPath);
             }
-
-            string cmd = cmdBuilder.ToString().TrimEnd(' ', '&');
 
             LogActivity($"Starting {operation} operation: {listViewLeft.SelectedItems.Count} item(s)");
             LogActivity($"From: {leftPath}");
@@ -400,18 +393,46 @@ Powered by Windows Robocopy";
             progressBar.Value = 0;
             operationStartTime = DateTime.Now;
 
-            // Start robocopy process
+            // Create temporary batch file to avoid command line length limits
+            string tempBatchFile = Path.Combine(Path.GetTempPath(), $"quickcopy_{Guid.NewGuid():N}.bat");
+            StringBuilder batchContent = new StringBuilder();
+            batchContent.AppendLine("@echo off");
+            batchContent.AppendLine("chcp 65001 >nul"); // UTF-8 encoding
+
+            // Copy files individually (using batch file avoids command line length limits)
+            foreach (string filePath in files)
+            {
+                string fileName = Path.GetFileName(filePath);
+                batchContent.AppendLine($"robocopy \"{leftPath}\" \"{rightPath}\" \"{fileName}\"{optionsBase}{moveFlag}");
+            }
+
+            // Copy directories individually
+            foreach (string dirPath in directories)
+            {
+                string dirName = Path.GetFileName(dirPath);
+                batchContent.AppendLine($"robocopy \"{dirPath}\" \"{Path.Combine(rightPath, dirName)}\" /E{optionsBase}{moveFlag}");
+            }
+
+            // Write batch file
+            File.WriteAllText(tempBatchFile, batchContent.ToString());
+
+            // Start batch file process
             robocopyProcess = new Process();
-            robocopyProcess.StartInfo.FileName = "cmd.exe";
-            robocopyProcess.StartInfo.Arguments = $"/c {cmd}";
+            robocopyProcess.StartInfo.FileName = tempBatchFile;
             robocopyProcess.StartInfo.UseShellExecute = false;
             robocopyProcess.StartInfo.RedirectStandardOutput = true;
             robocopyProcess.StartInfo.RedirectStandardError = true;
             robocopyProcess.StartInfo.CreateNoWindow = true;
+            robocopyProcess.StartInfo.StandardOutputEncoding = System.Text.Encoding.UTF8;
             robocopyProcess.EnableRaisingEvents = true;
             robocopyProcess.OutputDataReceived += RobocopyProcess_OutputDataReceived;
             robocopyProcess.ErrorDataReceived += RobocopyProcess_ErrorDataReceived;
-            robocopyProcess.Exited += RobocopyProcess_Exited;
+            robocopyProcess.Exited += (s, e) =>
+            {
+                // Clean up temp batch file
+                try { File.Delete(tempBatchFile); } catch { }
+                RobocopyProcess_Exited(s, e);
+            };
 
             robocopyProcess.Start();
             robocopyProcess.BeginOutputReadLine();
