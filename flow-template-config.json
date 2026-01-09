@@ -1,0 +1,194 @@
+{
+  "flowConfiguration": {
+    "name": "SharePoint Process Owners Extractor",
+    "description": "Extracts Process Owner and Manager information from multiple SharePoint sites",
+    "trigger": {
+      "type": "Recurrence",
+      "frequency": "Day",
+      "interval": 1,
+      "startTime": "02:00:00",
+      "timeZone": "UTC"
+    },
+    "variables": {
+      "sharePointSites": {
+        "type": "Array",
+        "value": [
+          "https://yourcompany.sharepoint.com/sites/Finance",
+          "https://yourcompany.sharepoint.com/sites/IT",
+          "https://yourcompany.sharepoint.com/sites/HR",
+          "https://yourcompany.sharepoint.com/sites/Operations"
+        ],
+        "description": "Add all your SharePoint site URLs here"
+      },
+      "excelFilePath": {
+        "type": "String",
+        "value": "/Shared Documents/Process_Owners_Tracker.xlsx",
+        "description": "Path to your Excel file in SharePoint or OneDrive"
+      },
+      "excelTableName": {
+        "type": "String",
+        "value": "ProcessOwnersTable"
+      },
+      "processData": {
+        "type": "Array",
+        "value": []
+      },
+      "fieldPatterns": {
+        "type": "Array",
+        "value": [
+          "Process Owner",
+          "Process Owners",
+          "Process Manager",
+          "Process Managers"
+        ],
+        "description": "Patterns to match in field names"
+      }
+    },
+    "actions": {
+      "loopThroughSites": {
+        "type": "Foreach",
+        "description": "Process each SharePoint site",
+        "foreach": "@variables('sharePointSites')",
+        "actions": [
+          {
+            "name": "GetSiteLists",
+            "type": "SharePoint.GetLists",
+            "inputs": {
+              "siteAddress": "@items('loopThroughSites')"
+            }
+          },
+          {
+            "name": "LoopThroughLists",
+            "type": "Foreach",
+            "foreach": "@body('GetSiteLists')?['value']",
+            "actions": [
+              {
+                "name": "GetListItems",
+                "type": "SharePoint.GetItems",
+                "inputs": {
+                  "siteAddress": "@items('loopThroughSites')",
+                  "listName": "@items('LoopThroughLists')?['Name']",
+                  "top": 5000
+                }
+              },
+              {
+                "name": "ProcessItems",
+                "type": "Foreach",
+                "description": "Extract person fields from each item"
+              }
+            ]
+          }
+        ]
+      },
+      "updateExcel": {
+        "type": "ExcelOnline.UpdateTable",
+        "description": "Update Excel table with extracted data"
+      }
+    }
+  },
+  "excelTableSchema": {
+    "tableName": "ProcessOwnersTable",
+    "columns": [
+      {
+        "name": "SiteName",
+        "type": "Text",
+        "required": true
+      },
+      {
+        "name": "SiteURL",
+        "type": "Text",
+        "required": true
+      },
+      {
+        "name": "ProcessName",
+        "type": "Text",
+        "required": false
+      },
+      {
+        "name": "FieldType",
+        "type": "Text",
+        "required": true,
+        "allowedValues": ["Owner", "Manager"]
+      },
+      {
+        "name": "PersonName",
+        "type": "Text",
+        "required": true
+      },
+      {
+        "name": "PersonEmail",
+        "type": "Text",
+        "required": true
+      },
+      {
+        "name": "LastUpdated",
+        "type": "DateTime",
+        "required": true
+      },
+      {
+        "name": "Status",
+        "type": "Text",
+        "required": false,
+        "allowedValues": ["Active", "Changed", "New", "Removed"]
+      }
+    ]
+  },
+  "powerAutomateExpressions": {
+    "extractProcessName": {
+      "description": "Extract process name from field name like 'SITS Process Owners'",
+      "expression": "trim(first(split(item()?['FieldName'], 'Process')))"
+    },
+    "checkIfFieldMatches": {
+      "description": "Check if field name contains any of the patterns",
+      "expression": "or(contains(toLower(item()?['FieldName']), 'process owner'), contains(toLower(item()?['FieldName']), 'process manager'))"
+    },
+    "determineFieldType": {
+      "description": "Determine if field is Owner or Manager",
+      "expression": "if(contains(toLower(item()?['FieldName']), 'owner'), 'Owner', 'Manager')"
+    },
+    "formatDateTime": {
+      "description": "Format current timestamp",
+      "expression": "formatDateTime(utcNow(), 'yyyy-MM-ddTHH:mm:ssZ')"
+    },
+    "extractEmailFromPeoplePicker": {
+      "description": "Extract email from people picker field",
+      "expression": "item()?['ProcessOwner']?['Email']"
+    },
+    "extractNameFromPeoplePicker": {
+      "description": "Extract display name from people picker field",
+      "expression": "item()?['ProcessOwner']?['DisplayName']"
+    },
+    "checkIfRecordExists": {
+      "description": "Check if record already exists in Excel",
+      "expression": "contains(body('ListExcelRows'), concat(variables('CurrentSiteName'), '-', variables('CurrentProcessName'), '-', variables('CurrentPersonEmail')))"
+    }
+  },
+  "implementation-notes": [
+    "1. Create Excel file first with the schema defined above",
+    "2. Update sharePointSites array with your actual site URLs",
+    "3. Grant flow permissions to all SharePoint sites",
+    "4. Test with one site before deploying to all sites",
+    "5. Consider using SharePoint HTTP actions for better field detection",
+    "6. Add error handling scopes around each site processing",
+    "7. Set up email notifications for failures",
+    "8. Monitor API call limits - you may need premium license for HTTP actions"
+  ],
+  "advanced-scenarios": {
+    "multiplePeopleInField": {
+      "description": "Handle when Process Owner field contains multiple people",
+      "approach": "Use Apply to each on PersonField?['value'] array"
+    },
+    "dynamicFieldDetection": {
+      "description": "Automatically detect all person fields in lists",
+      "approach": "Use SharePoint Get List action to retrieve column schema, filter by FieldTypeKind = 20 (User)"
+    },
+    "incrementalUpdates": {
+      "description": "Only process items modified since last run",
+      "approach": "Store last run timestamp, filter SharePoint items by Modified >= LastRunDate"
+    },
+    "conflictResolution": {
+      "description": "Handle cases where same process has different owners in different sites",
+      "approach": "Add SourcePriority column, keep highest priority source"
+    }
+  }
+}
