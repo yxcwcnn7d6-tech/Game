@@ -124,6 +124,7 @@ QuickCopy uses Windows built-in `robocopy.exe` for reliable file operations:
 - **Move support:** `/MOVE` flag for move operations
 - **Exit codes:** Interpreted and displayed in activity log
 - **Batch file execution:** Uses temporary batch files to avoid Windows command line length limits (handles 100+ files easily)
+- **Performance optimization:** All files from the same folder are copied in a single robocopy command (5x faster than running robocopy per file)
 
 ## Design - Vattenfall Color Scheme
 

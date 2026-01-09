@@ -399,14 +399,27 @@ Powered by Windows Robocopy";
             batchContent.AppendLine("@echo off");
             batchContent.AppendLine("chcp 65001 >nul"); // UTF-8 encoding
 
-            // Copy files individually (using batch file avoids command line length limits)
-            foreach (string filePath in files)
+            // Copy all files in a SINGLE robocopy command for maximum performance
+            if (files.Count > 0)
             {
-                string fileName = Path.GetFileName(filePath);
-                batchContent.AppendLine($"robocopy \"{leftPath}\" \"{rightPath}\" \"{fileName}\"{optionsBase}{moveFlag}");
+                StringBuilder filesCommand = new StringBuilder();
+                filesCommand.Append($"robocopy \"{leftPath}\" \"{rightPath}\"");
+
+                // Add all file names to a single command
+                foreach (string filePath in files)
+                {
+                    string fileName = Path.GetFileName(filePath);
+                    filesCommand.Append($" \"{fileName}\"");
+                }
+
+                // Add options at the end
+                filesCommand.Append(optionsBase);
+                filesCommand.Append(moveFlag);
+
+                batchContent.AppendLine(filesCommand.ToString());
             }
 
-            // Copy directories individually
+            // Copy directories individually (directories must be copied one at a time)
             foreach (string dirPath in directories)
             {
                 string dirName = Path.GetFileName(dirPath);
