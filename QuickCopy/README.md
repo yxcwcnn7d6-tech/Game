@@ -59,17 +59,19 @@ QuickCopy Vattenfall Edition is a powerful Windows application for copying and m
 
 ## System Requirements
 
+### For End Users (Standalone Executable)
+- **OS:** Windows 10 (64-bit) or later
+- **Framework:** None required! (runtime included in exe)
+- **Size:** ~70 MB single executable file
+
+### For Developers
 - **OS:** Windows 10 or later
-- **Framework:** .NET 8.0 or later
-- **Dependencies:** Microsoft.VisualBasic (for RecycleBin operations)
+- **Framework:** .NET 8.0 SDK
+- **IDE:** Visual Studio 2022 or VS Code
 
 ## Building the Project
 
-### Prerequisites
-- Visual Studio 2022 or later
-- .NET 8.0 SDK
-
-### Build Steps
+### Quick Development Build
 
 ```bash
 # Clone the repository
@@ -78,21 +80,39 @@ git clone <repository-url>
 # Navigate to QuickCopy directory
 cd QuickCopy
 
-# Restore NuGet packages
-dotnet restore
-
-# Build the project
-dotnet build
-
-# Run the application
+# Build and run (requires .NET 8.0 SDK)
 dotnet run
 ```
 
-### Build in Visual Studio
+### Build for Distribution (Standalone EXE)
 
+Create a single executable file that works **without installing .NET**:
+
+#### Using Command Line:
+```bash
+cd QuickCopy
+dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true
+```
+
+The standalone executable will be in: `bin/Release/net8.0-windows/win-x64/publish/QuickCopy.exe`
+
+#### Using Visual Studio:
 1. Open `QuickCopy.sln` in Visual Studio
-2. Press `F5` to build and run
-3. Or use `Build > Build Solution` (Ctrl+Shift+B)
+2. Right-click the project → **Publish**
+3. Choose **Folder** as target
+4. Set Configuration to **Release**
+5. Click **Publish**
+
+**Result:** A single `QuickCopy.exe` file (~70 MB) that includes everything needed to run.
+
+### Standard Development Build (Requires .NET Runtime)
+
+```bash
+# Build Debug version (requires .NET 8.0 runtime on target machine)
+dotnet build
+
+# Or in Visual Studio: Press F5
+```
 
 ## Configuration
 
