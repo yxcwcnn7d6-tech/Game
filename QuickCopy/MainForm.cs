@@ -425,7 +425,7 @@ Powered by Windows Robocopy";
         #endregion
 
         #region Robocopy Process Handlers
-        private void RobocopyProcess_OutputDataReceived(object sender, DataReceivedEventArgs e)
+        private void RobocopyProcess_OutputDataReceived(object? sender, DataReceivedEventArgs e)
         {
             if (!string.IsNullOrEmpty(e.Data))
             {
@@ -466,7 +466,7 @@ Powered by Windows Robocopy";
             }
         }
 
-        private void RobocopyProcess_ErrorDataReceived(object sender, DataReceivedEventArgs e)
+        private void RobocopyProcess_ErrorDataReceived(object? sender, DataReceivedEventArgs e)
         {
             if (!string.IsNullOrEmpty(e.Data))
             {
@@ -477,7 +477,7 @@ Powered by Windows Robocopy";
             }
         }
 
-        private void RobocopyProcess_Exited(object sender, EventArgs e)
+        private void RobocopyProcess_Exited(object? sender, EventArgs e)
         {
             this.Invoke((MethodInvoker)delegate
             {
