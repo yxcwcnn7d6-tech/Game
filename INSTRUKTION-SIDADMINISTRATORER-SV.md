@@ -8,26 +8,55 @@ Du behöver lägga till information om Process Owner och Process Manager på din
 
 ---
 
-## Metod 1: Via information-panelen (ENKLAST)
+## ⚡ Snabbtest - Finns fälten redan?
+
+Innan du börjar, testa om fälten redan är klara:
+
+1. **Gå till din process-sida** (t.ex. SITS)
+2. **Klicka på "Edit"** längst upp till höger (där det står "Posted - Share - Edit")
+3. **Titta direkt under titeln** eller **leta efter en "Properties"-knapp**
+
+**Ser du fält som heter ProcessOwner, ProcessManager eller ProcessName?**
+- ✅ **JA** → Gå direkt till **Metod 1** nedan och fyll i dem!
+- ❌ **NEJ** → Fälten är inte skapade än. Kontakta IT/SharePoint-admin och hänvisa dem till: `SHAREPOINT-PAGE-PROPERTIES-GUIDE-SV.md`
+
+---
+
+## Metod 1: Via Edit-läget (ENKLAST)
 
 ### Steg 1: Öppna din sida
 Gå till din process-sida (t.ex. SITS-sidan)
-**Klicka INTE på Edit än**
 
-### Steg 2: Öppna information
-Längst upp till höger, klicka på **"i"** (information-ikonen)
+### Steg 2: Klicka på Edit
+Längst upp till höger ser du: **Posted - Share - Edit**
+- Klicka på **Edit**
 
-Det ser ut ungefär så här: **🛈** eller **ⓘ**
+### Steg 3: Leta efter Properties-panelen
+När du är i edit-mode, **klicka INTE på själva sidinnehållet**.
 
-### Steg 3: Öppna alla egenskaper
-I panelen som öppnas till höger:
-- Klicka på **"View all properties"** eller **"Visa alla egenskaper"** längst ner
+Titta istället **längst upp under menyfältet**.
+Du kan se en av dessa:
 
-### Steg 4: Redigera
-- Klicka på **"Edit all"** eller **"Redigera alla"** längst upp i panelen
+**Alternativ A:** En panel med fält direkt under titeln
+- Om du ser fält som "ProcessOwner", "ProcessManager" här
+- Fyll i dem direkt (hoppa till Steg 5)
+
+**Alternativ B:** En knapp eller länk som säger "Properties" eller "Page details"
+- Klicka på den
+- En panel öppnas till höger eller en ny vy visas
+
+**Alternativ C:** Inget syns
+- Gå till Metod 2 nedan istället
+
+### Steg 4: Öppna Properties (om du behöver)
+Om properties inte syns direkt:
+- Leta efter **"..."** (tre prickar) i edit-mode
+- Eller en knapp som säger **"Page details"**
+- Eller **"Properties"**
+- Klicka på den
 
 ### Steg 5: Fyll i fälten
-Du ser nu flera fält. Hitta dessa:
+Du ser nu metadata-fält. Hitta dessa:
 
 **ProcessOwner** (eller "Process Owner")
 - Klicka i fältet
@@ -43,9 +72,9 @@ Du ser nu flera fält. Hitta dessa:
 **ProcessName** (eller "Process Name") - om fältet finns
 - Skriv processens namn (t.ex. "SITS", "Problem", etc.)
 
-### Steg 6: Spara
-- Klicka **Save** eller **Spara** längst upp
-- Stäng panelen
+### Steg 6: Spara sidan
+- Klicka **Publish** eller **Publicera** längst upp till höger
+- Eller **Save** om du vill spara som draft
 
 **Klart!** ✅
 
@@ -53,39 +82,71 @@ Din sida ser exakt likadan ut, men informationen finns nu i bakgrunden.
 
 ---
 
-## Metod 2: Via detaljer-menyn (ALTERNATIV)
+## Metod 2: Via URL-trick (om Edit-mode inte visar fält)
 
-### Steg 1: Öppna menyn
-På din sida, klicka på **"..."** (tre prickar) längst upp till höger
+Om du inte ser fälten i edit-mode, prova detta:
 
-### Steg 2: Välj Details
-Välj **"Details"** eller **"Detaljer"** från menyn
+### Steg 1: Öppna din sida
+Gå till din process-sida som vanligt
 
-### Steg 3: Gå till Properties
-I panelen som öppnas:
-- Klicka på **"Properties"** eller **"Egenskaper"**
+### Steg 2: Kopiera URL:en
+Kopiera hela URL:en från webbläsaren
+T.ex: `https://company.sharepoint.com/sites/IT/SitePages/SITS.aspx`
 
-### Steg 4-6: Samma som ovan
-Följ steg 4-6 från Metod 1
+### Steg 3: Öppna ny flik och modifiera URL:en
+Klistra in URL:en i en ny flik och lägg till detta **i slutet**:
+
+```
+?ControlMode=Edit&DisplayMode=Design
+```
+
+**Exempel:**
+Från: `https://company.sharepoint.com/sites/IT/SitePages/SITS.aspx`
+Till: `https://company.sharepoint.com/sites/IT/SitePages/SITS.aspx?ControlMode=Edit&DisplayMode=Design`
+
+### Steg 4: Öppna den nya URL:en
+Tryck Enter - du kommer till en vy där du ser metadata-fält direkt
+
+### Steg 5: Fyll i fält
+Fyll i ProcessOwner, ProcessManager, ProcessName
+
+### Steg 6: Spara
+Klicka Save/Publish
 
 ---
 
-## Metod 3: Direkt i URL (för avancerade användare)
+## Metod 3: Be IT/Site Owner göra det
 
-Om metoderna ovan inte fungerar:
+Om ingen av metoderna ovan fungerar för dig:
 
-### Steg 1: Kopiera din sidas URL
-T.ex: `https://company.sharepoint.com/sites/IT/SitePages/SITS.aspx`
+### Kontakta IT eller Site Owner
+De har tillgång till Site Pages-biblioteket där de kan fylla i fälten åt dig direkt.
 
-### Steg 2: Lägg till parameter
-Lägg till `?Mode=Edit&DisplayMode=Design` i slutet:
-`https://company.sharepoint.com/sites/IT/SitePages/SITS.aspx?Mode=Edit&DisplayMode=Design`
+**Ge dem denna information:**
+- Sidans namn (t.ex. "SITS.aspx")
+- ProcessOwner: [Namnet]
+- ProcessManager: [Namnet/Namnen]
+- ProcessName: [t.ex. "SITS"]
 
-### Steg 3: Öppna URL:en
-Klistra in den nya URL:en i din webbläsare
+De kan fylla i det på några sekunder från biblioteket.
 
-### Steg 4: Fyll i fält
-Du kommer till en sida där du kan fylla i metadata-fält direkt
+---
+
+## Metod 4: Test om fälten finns (för felsökning)
+
+Om du är osäker på om fälten ProcessOwner/ProcessManager finns:
+
+### Steg 1: Klicka Edit på din sida
+
+### Steg 2: Högerklicka var som helst på sidan
+
+### Steg 3: Välj "View Page Source" eller tryck F12
+
+### Steg 4: Sök efter (Ctrl+F)
+Sök efter: `ProcessOwner`
+
+**Om du hittar det:** Fältet finns! Använd Metod 2 (URL-trick)
+**Om du INTE hittar det:** Fältet är inte skapat än - kontakta IT/Site Owner
 
 ---
 
@@ -140,31 +201,47 @@ Om du kör fast:
 
 ## Visuell guide (vad du ska leta efter)
 
-När du klickar på **ⓘ** ser du något liknande detta:
+### När du klickar på Edit längst upp:
 
+```
+┌─────────────────────────────────────────────┐
+│  SITS - Special IT Services                 │
+│  Posted - Share - Edit   ← KLICKA PÅ EDIT  │
+└─────────────────────────────────────────────┘
+```
+
+### I Edit-mode, leta efter fält under titeln:
+
+**Alternativ A - Fälten syns direkt:**
+```
+┌─────────────────────────────────────────────┐
+│  [Publish] [Save as draft]                  │
+│  ──────────────────────────────────────     │
+│  SITS - Special IT Services                 │
+│                                              │
+│  ProcessOwner: [Välj person]     ← FYLL HÄR │
+│  ProcessManager: [Välj person]   ← FYLL HÄR │
+│  ProcessName: [________]         ← FYLL HÄR │
+│  ──────────────────────────────────────     │
+│  [Sidinnehåll här...]                        │
+└─────────────────────────────────────────────┘
+```
+
+**Alternativ B - Fälten finns i "Properties" eller "Page details":**
+```
+┌─────────────────────────────────────────────┐
+│  [Publish] [...] [Properties] ← KLICKA HÄR  │
+└─────────────────────────────────────────────┘
+```
+
+Då öppnas en panel till höger:
 ```
 ┌────────────────────────────┐
-│  Information              │
-│  ─────────────────────    │
-│  Name: SITS.aspx          │
-│  Modified: 2025-01-15     │
-│  Modified by: Dig         │
-│                           │
-│  View all properties ↓    │  ← KLICKA HÄR
-└────────────────────────────┘
-```
-
-Sedan ser du:
-
-```
-┌────────────────────────────┐
-│  Properties        Edit ✏️  │  ← KLICKA HÄR
+│  Properties        [X]     │
 │  ─────────────────────────│
-│  Name: SITS.aspx          │
-│  Created: 2024-12-18      │
-│  ProcessOwner: [____]     │  ← FYLL I HÄR
-│  ProcessManager: [____]   │  ← FYLL I HÄR
-│  ProcessName: [____]      │  ← FYLL I HÄR
+│  ProcessOwner: [____]     │  ← FYLL I
+│  ProcessManager: [____]   │  ← FYLL I
+│  ProcessName: [____]      │  ← FYLL I
 │                           │
 │  [Cancel]  [Save]         │
 └────────────────────────────┘
