@@ -13,15 +13,25 @@ Detta är en **förenklad testversion** för att verifiera att AI:n fungerar på
 
 ---
 
-## Steg 1: Förberedelser (5 minuter)
+## Steg 1: Förberedelser (2 minuter)
 
-### 1.1: Skaffa OpenAI API-nyckel (om du inte har)
+### 1.1: Välj AI-metod
 
-1. **Gå till:** https://platform.openai.com/api-keys
-2. **Logga in** eller skapa konto
-3. **Klicka "Create new secret key"**
-4. **Kopiera nyckeln** (börjar med "sk-proj-" eller "sk-")
-5. **Spara i notepad** tillfälligt
+Du har två alternativ:
+
+**Alternativ A: AI Builder (REKOMMENDERAT - enklast)**
+- ✅ Inbyggt i Power Automate
+- ✅ Ingen API-nyckel behövs
+- ✅ Superenkelt att använda
+- ⚠️ Kostar AI Builder credits (oftast inkluderat i Office 365)
+
+**Alternativ B: OpenAI API (billigare)**
+- ⚠️ Kräver OpenAI API-nyckel
+- ⚠️ Lite mer setup
+- ✅ Mycket billigare (~$0.001 vs $0.05 per anrop)
+- ✅ Mer kontroll över modell
+
+**För snabbtest: Använd Alternativ A (AI Builder)!**
 
 ### 1.2: Hitta URL till en testsida
 
@@ -219,7 +229,30 @@ CRITICAL: Return ONLY the JSON object above. No explanations, no markdown, no co
 
 ---
 
-### 2.6: Anropa OpenAI API
+### 2.6: Anropa AI
+
+### ALTERNATIV A: AI Builder (Rekommenderat)
+
+1. **Klicka "+ New step"**
+2. **Sök:** `create text with gpt`
+3. **Välj "Create text with GPT"** (AI Builder)
+
+**Fyll i:**
+- **Create text with GPT using a prompt:** Klicka i fältet
+  - Dynamic content: Välj **"Outputs"** (från AIPrompt)
+
+**Det är allt!** ✅
+
+**Byt namn:**
+- "..." > Rename > `CallAI`
+
+**FORTSÄTT TILL STEG 2.7 (hoppa över Alternativ B)**
+
+---
+
+### ALTERNATIV B: OpenAI API (Om du vill)
+
+**Bara om du har skaffat OpenAI API-nyckel:**
 
 1. **Klicka "+ New step"**
 2. **Sök:** `http`
@@ -282,6 +315,25 @@ https://api.openai.com/v1/chat/completions
 ---
 
 ### 2.7: Extrahera AI-svaret
+
+**Om du använde ALTERNATIV A (AI Builder):**
+
+1. **Klicka "+ New step"**
+2. **Sök:** `compose`
+3. **Välj "Compose"**
+
+**Fyll i Inputs:**
+- Klicka i fältet
+- Dynamic content: Välj **"text"** (från Create text with GPT)
+
+**✅ AI-svaret extraheras**
+
+**Byt namn:**
+- "..." > Rename > `AIResponse`
+
+---
+
+**Om du använde ALTERNATIV B (OpenAI API):**
 
 1. **Klicka "+ New step"**
 2. **Sök:** `compose`
@@ -547,30 +599,32 @@ Och bygga resten enligt huvudguiden!
 3. Get file content (hämta sidan)
 4. Compose PageContent
 5. Compose AIPrompt (med din prompt)
-6. HTTP CallOpenAI
+6. **Create text with GPT** (AI Builder) ELLER HTTP CallOpenAI
 7. Compose AIResponse
 8. Send email med resultat
 
 **Totalt: 8 steg, 10-15 minuter**
 
 **Kostnad per test:**
-- ~$0.001 (en tiondels cent)
-- Kan testa 100 gånger för $0.10
+- **AI Builder:** ~1-5 credits per test (ofta inkluderat i Office 365)
+- **OpenAI API:** ~$0.001 (en tiondels cent)
+- Kan testa 100 gånger för nästan gratis!
 
 ---
 
 ## Checklista
 
 Förberedelser:
-- [ ] OpenAI API-nyckel skaffad
+- [ ] Valt AI-metod (AI Builder ELLER OpenAI API)
 - [ ] Testsida (URL) vald
+- [ ] (Bara om OpenAI API) API-nyckel skaffad
 
 Byggt testflödet:
 - [ ] Manuell trigger
 - [ ] Variabler för URL/Path
 - [ ] Get file content
 - [ ] Prompten kopierad in
-- [ ] OpenAI API-anrop konfigurerat
+- [ ] AI-anrop konfigurerat (AI Builder eller OpenAI)
 - [ ] Email med resultat
 
 Testat:
