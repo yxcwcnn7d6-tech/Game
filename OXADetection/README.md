@@ -9,13 +9,22 @@ iOS-app for räddningstjänsten att identifiera OXA (Oidentifierad eXplosiv Ammu
     <td align="center"><b>Startskärm</b></td>
     <td align="center"><b>Skanningsvy</b></td>
     <td align="center"><b>Rapport</b></td>
-    <td align="center"><b>Inställningar</b></td>
   </tr>
   <tr>
     <td><img src="preview/01-startscreen.svg" width="200"/></td>
     <td><img src="preview/02-scanview.svg" width="200"/></td>
     <td><img src="preview/03-reportview.svg" width="200"/></td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <td align="center"><b>Inställningar<br/>(AI + Rapportleverans)</b></td>
+    <td align="center"><b>Rapport - Skicka</b></td>
+  </tr>
+  <tr>
     <td><img src="preview/04-settings.svg" width="200"/></td>
+    <td><img src="preview/05-report-send.svg" width="200"/></td>
   </tr>
 </table>
 
