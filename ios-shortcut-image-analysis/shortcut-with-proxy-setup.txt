@@ -1,0 +1,74 @@
+iOS Shortcut: Bildanalys via Proxy-server (Enklare variant)
+=============================================================
+
+Denna variant skickar bilden till din egen proxy-server istället
+för direkt till Anthropic. Fördelar:
+  - API-nyckeln lagras på servern, inte i shortcuten
+  - Enklare JSON-body
+  - Kan lägga till egen logik (spara bilder, logga, etc.)
+
+
+FÖRUTSÄTTNINGAR
+---------------
+1. Kör proxy-server.py på en server (lokal eller VPS):
+      export ANTHROPIC_API_KEY="din-nyckel"
+      python3 proxy-server.py --port 8080 --auth-token dittHemligaLösenord
+
+2. Om servern körs lokalt hemma, använd Tailscale eller liknande
+   för att nå den från telefonen.
+
+
+STEG-FÖR-STEG
+==============
+
+STEG 1: Skapa ny genväg
+   -> Namnge den "Analysera Bild (Proxy)"
+
+STEG 2: Ta foto eller välj bild
+   -> Lägg till: "Ta foto" ELLER "Välj foton"
+
+STEG 3: Konvertera till JPEG
+   -> Lägg till: "Konvertera bild"
+   -> Format: JPEG, Kvalitet: 0.7
+
+STEG 4: Ändra storlek (rekommenderat)
+   -> Lägg till: "Ändra storlek på bild"
+   -> Bredd: 1024
+   -> Höjd: Auto
+
+STEG 5: Base64-koda
+   -> Lägg till: "Koda med Base64"
+
+STEG 6 (Valfritt): Be om prompt
+   -> Lägg till: "Be om indata"
+   -> Standard: "Beskriv vad du ser"
+
+STEG 7: Skicka till proxy
+   -> Lägg till: "Hämta innehåll på URL"
+   -> URL: http://din-server:8080/analyze
+   -> Metod: POST
+   -> Headers:
+      Content-Type  : application/json
+      Authorization : Bearer dittHemligaLösenord
+   -> Request Body: JSON
+   -> Lägg till fält:
+      image  (Text)  : [Base64-kodat]
+      prompt (Text)  : [Angiven indata]
+
+STEG 8: Visa resultat
+   -> Lägg till: "Hämta ordlistevärde"
+   -> Nyckel: result
+
+   -> Lägg till: "Visa resultat"
+   -> Input: [Ordlistevärde]
+
+
+TESTA SERVERN
+=============
+Från terminal:
+   curl -X POST http://localhost:8080/analyze \
+     -H "Content-Type: application/json" \
+     -H "Authorization: Bearer dittHemligaLösenord" \
+     -d '{"image":"BASE64_HÄR","prompt":"Vad visar bilden?"}'
+
+Eller använd test-vision-api.sh för att verifiera att API-nyckeln fungerar.

@@ -1,0 +1,151 @@
+iOS Shortcut: Bildanalys med Anthropic Claude
+==============================================
+
+ÖVERSIKT
+--------
+Denna shortcut tar en bild (kamera eller bildbibliotek), skickar den
+till Anthropic Claude Vision API, och visar analysen som resultat.
+
+FÖRUTSÄTTNINGAR
+---------------
+- Anthropic API-nyckel (börjar med "sk-ant-...")
+- iOS 16+ eller iPadOS 16+
+- Appen "Genvägar" (Shortcuts)
+
+
+STEG-FÖR-STEG: BYGG SHORTCUTEN
+================================
+
+STEG 1: Skapa ny genväg
+   - Öppna Genvägar-appen
+   - Tryck + för ny genväg
+   - Namnge den "Analysera Bild" (eller valfritt)
+
+STEG 2: Välj bildkälla (välj ETT alternativ)
+
+   Alternativ A - Ta foto med kamera:
+   -> Lägg till åtgärd: "Ta foto"
+   -> Stäng av "Visa kameraförhandsgranskning" om du vill snabba upp
+
+   Alternativ B - Välj från bibliotek:
+   -> Lägg till åtgärd: "Välj foton"
+   -> Sätt "Välj flera" till AV
+
+   Alternativ C - Dela-meny (Share Sheet):
+   -> Ställ in shortcuten som Share Sheet
+   -> Under "Genvägens indata" välj "Bilder"
+   -> Använd "Genvägens indata" som bildvariabel
+
+STEG 3: Konvertera bilden till JPEG
+   -> Lägg till: "Konvertera bild"
+   -> Input: [Foto/vald bild]
+   -> Format: JPEG
+   -> Kvalitet: 0.7  (minskar storlek, snabbare uppladdning)
+
+STEG 4: Base64-koda bilden
+   -> Lägg till: "Koda med Base64"
+   -> Input: [Konverterad bild]
+   -> Kodaläge: "Koda"
+
+STEG 5 (Valfritt): Fråga efter prompt
+   -> Lägg till: "Be om indata"
+   -> Fråga: "Vad vill du veta om bilden?"
+   -> Typ: Text
+   -> Standard: "Beskriv vad du ser i bilden."
+
+   ALTERNATIVT - Hårdkodad prompt (hoppa över "Be om indata"):
+   -> Lägg till: "Text"
+   -> Skriv in din fasta prompt, t.ex.:
+      "Identifiera alla produkter i bilden och uppskatta priserna"
+      "Läs av texten i bilden och returnera den"
+      "Vilka växter syns i bilden?"
+
+STEG 6: Bygg JSON-body
+   -> Lägg till: "Text"
+   -> Klistra in följande (exakt):
+
+{"model":"claude-sonnet-4-20250514","max_tokens":1024,"messages":[{"role":"user","content":[{"type":"image","source":{"type":"base64","media_type":"image/jpeg","data":"BILD_BASE64"}},{"type":"text","text":"DIN_PROMPT"}]}]}
+
+   -> Markera BILD_BASE64 och ersätt med variabeln [Base64-kodat]
+   -> Markera DIN_PROMPT och ersätt med variabeln [Angiven indata]
+      (eller din hårdkodade Text-variabel)
+
+   VIKTIGT: Se till att det INTE finns radbrytningar i JSON-texten.
+
+STEG 7: Skicka API-anropet
+   -> Lägg till: "Hämta innehåll på URL"
+   -> URL: https://api.anthropic.com/v1/messages
+   -> Metod: POST
+   -> Headers (lägg till 3 st):
+      Content-Type     : application/json
+      x-api-key        : DIN_API_NYCKEL_HÄR
+      anthropic-version: 2023-06-01
+   -> Request Body: Fil
+   -> Fil: [Texten från Steg 6]
+
+STEG 8: Extrahera svaret
+   -> Lägg till: "Hämta ordlistevärde"
+   -> Input: [Innehåll på URL]
+   -> Nyckel: content
+
+   -> Lägg till: "Hämta objekt från lista"
+   -> Input: [Ordlistevärde]
+   -> Hämta: "Första objektet"
+
+   -> Lägg till: "Hämta ordlistevärde"
+   -> Input: [Objekt från lista]
+   -> Nyckel: text
+
+STEG 9: Visa resultatet (välj ETT alternativ)
+
+   Alternativ A - Visa direkt:
+   -> Lägg till: "Visa resultat"
+   -> Input: [Ordlistevärde (text)]
+
+   Alternativ B - Snabbvy:
+   -> Lägg till: "Snabbvy"
+   -> Input: [Ordlistevärde (text)]
+
+   Alternativ C - Kopiera till urklipp:
+   -> Lägg till: "Kopiera till urklipp"
+   -> Input: [Ordlistevärde (text)]
+   -> Lägg till: "Visa meddelande" med texten "Svaret kopierat!"
+
+
+SÄKERHETSTIPS
+=============
+- Spara ALDRIG API-nyckeln i klartext i shortcuten om andra
+  har åtkomst till din telefon.
+
+- Alternativ: Spara API-nyckeln i en textfil i iCloud Drive
+  och läs den med "Hämta fil" i shortcuten.
+
+- Eller: Använd "Be om indata" för API-nyckeln och spara den
+  i Data Jar (gratis app) vid första körning.
+
+
+FELSÖKNING
+==========
+Problem: "Request Entity Too Large" / 413-fel
+  -> Bilden är för stor. Sänk JPEG-kvaliteten till 0.5 eller
+     lägg till "Ändra storlek på bild" med bredd 1024px.
+
+Problem: "Invalid API Key" / 401-fel
+  -> Kontrollera att x-api-key headern har rätt nyckel.
+  -> Se till att det inte finns mellanslag före/efter nyckeln.
+
+Problem: Tomt svar / JSON-parsningsfel
+  -> Kontrollera att JSON-bodyn inte har radbrytningar.
+  -> Testa med test-vision-api.sh skriptet först.
+
+Problem: "Could not convert to expected type"
+  -> "Hämta innehåll på URL" - Request Body måste vara "Fil"
+     (inte "JSON" eller "Form"), annars tolkas texten om.
+
+
+AVANCERAT: ANPASSA MODELL
+==========================
+Byt "claude-sonnet-4-20250514" i JSON-bodyn mot:
+  - claude-sonnet-4-20250514    (snabb, bra balans)
+  - claude-opus-4-20250514    (mest kapabel, långsammare)
+  - claude-haiku-3-5-20241022  (snabbast, billigast)
