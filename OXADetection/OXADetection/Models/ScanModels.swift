@@ -57,6 +57,20 @@ enum DataHandling: String, Codable, CaseIterable {
     case both = "Båda"
 }
 
+// MARK: - AI Provider
+
+enum AIProvider: String, Codable, CaseIterable {
+    case onDevice = "On-device"
+    case customAPI = "Extern API"
+
+    var description: String {
+        switch self {
+        case .onDevice: return "Vision framework (fungerar offline)"
+        case .customAPI: return "Extern AI-tjänst via API"
+        }
+    }
+}
+
 // MARK: - Zoom Level
 
 enum ZoomLevel: Int, Codable, CaseIterable {

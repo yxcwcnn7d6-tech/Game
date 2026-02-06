@@ -12,6 +12,20 @@ class AppSettings: ObservableObject, Codable {
     @Published var stabilizationDuration: Double
     @Published var numberOfZoomLevels: Int
 
+    // MARK: - AI API Configuration
+
+    @Published var aiProvider: AIProvider
+    @Published var aiAPIEndpoint: String
+    @Published var aiAPIKey: String
+    @Published var aiModelName: String
+
+    // MARK: - Report Delivery Configuration
+
+    @Published var reportRecipientEmail: String
+    @Published var reportAPIEndpoint: String
+    @Published var reportAPIKey: String
+    @Published var autoSendReport: Bool
+
     static let defaultSettings = AppSettings()
 
     init(
@@ -22,7 +36,15 @@ class AppSettings: ObservableObject, Codable {
         reportFormat: ReportFormat = .osh,
         dataHandling: DataHandling = .local,
         stabilizationDuration: Double = 0.5,
-        numberOfZoomLevels: Int = 3
+        numberOfZoomLevels: Int = 3,
+        aiProvider: AIProvider = .onDevice,
+        aiAPIEndpoint: String = "",
+        aiAPIKey: String = "",
+        aiModelName: String = "",
+        reportRecipientEmail: String = "",
+        reportAPIEndpoint: String = "",
+        reportAPIKey: String = "",
+        autoSendReport: Bool = false
     ) {
         self.scanMode = scanMode
         self.maxZoomLevel = maxZoomLevel
@@ -32,6 +54,14 @@ class AppSettings: ObservableObject, Codable {
         self.dataHandling = dataHandling
         self.stabilizationDuration = stabilizationDuration
         self.numberOfZoomLevels = numberOfZoomLevels
+        self.aiProvider = aiProvider
+        self.aiAPIEndpoint = aiAPIEndpoint
+        self.aiAPIKey = aiAPIKey
+        self.aiModelName = aiModelName
+        self.reportRecipientEmail = reportRecipientEmail
+        self.reportAPIEndpoint = reportAPIEndpoint
+        self.reportAPIKey = reportAPIKey
+        self.autoSendReport = autoSendReport
     }
 
     // MARK: - Codable
@@ -39,6 +69,8 @@ class AppSettings: ObservableObject, Codable {
     enum CodingKeys: String, CodingKey {
         case scanMode, maxZoomLevel, aiSensitivity, autoCaptureEnabled
         case reportFormat, dataHandling, stabilizationDuration, numberOfZoomLevels
+        case aiProvider, aiAPIEndpoint, aiAPIKey, aiModelName
+        case reportRecipientEmail, reportAPIEndpoint, reportAPIKey, autoSendReport
     }
 
     required init(from decoder: Decoder) throws {
@@ -51,6 +83,14 @@ class AppSettings: ObservableObject, Codable {
         dataHandling = try container.decode(DataHandling.self, forKey: .dataHandling)
         stabilizationDuration = try container.decode(Double.self, forKey: .stabilizationDuration)
         numberOfZoomLevels = try container.decode(Int.self, forKey: .numberOfZoomLevels)
+        aiProvider = try container.decodeIfPresent(AIProvider.self, forKey: .aiProvider) ?? .onDevice
+        aiAPIEndpoint = try container.decodeIfPresent(String.self, forKey: .aiAPIEndpoint) ?? ""
+        aiAPIKey = try container.decodeIfPresent(String.self, forKey: .aiAPIKey) ?? ""
+        aiModelName = try container.decodeIfPresent(String.self, forKey: .aiModelName) ?? ""
+        reportRecipientEmail = try container.decodeIfPresent(String.self, forKey: .reportRecipientEmail) ?? ""
+        reportAPIEndpoint = try container.decodeIfPresent(String.self, forKey: .reportAPIEndpoint) ?? ""
+        reportAPIKey = try container.decodeIfPresent(String.self, forKey: .reportAPIKey) ?? ""
+        autoSendReport = try container.decodeIfPresent(Bool.self, forKey: .autoSendReport) ?? false
     }
 
     func encode(to encoder: Encoder) throws {
@@ -63,6 +103,14 @@ class AppSettings: ObservableObject, Codable {
         try container.encode(dataHandling, forKey: .dataHandling)
         try container.encode(stabilizationDuration, forKey: .stabilizationDuration)
         try container.encode(numberOfZoomLevels, forKey: .numberOfZoomLevels)
+        try container.encode(aiProvider, forKey: .aiProvider)
+        try container.encode(aiAPIEndpoint, forKey: .aiAPIEndpoint)
+        try container.encode(aiAPIKey, forKey: .aiAPIKey)
+        try container.encode(aiModelName, forKey: .aiModelName)
+        try container.encode(reportRecipientEmail, forKey: .reportRecipientEmail)
+        try container.encode(reportAPIEndpoint, forKey: .reportAPIEndpoint)
+        try container.encode(reportAPIKey, forKey: .reportAPIKey)
+        try container.encode(autoSendReport, forKey: .autoSendReport)
     }
 
     // MARK: - Persistence

@@ -62,6 +62,37 @@ struct SettingsView: View {
                     Text("Hög känslighet ger fler detektioner men kan ge falska positiva")
                 }
 
+                // AI API Configuration
+                Section {
+                    Picker("AI-källa", selection: $settings.aiProvider) {
+                        ForEach(AIProvider.allCases, id: \.self) { provider in
+                            Text(provider.rawValue).tag(provider)
+                        }
+                    }
+
+                    if settings.aiProvider == .customAPI {
+                        TextField("API-endpoint URL", text: $settings.aiAPIEndpoint)
+                            .keyboardType(.URL)
+                            .textContentType(.URL)
+                            .autocapitalization(.none)
+                            .disableAutocorrection(true)
+
+                        SecureField("API-nyckel", text: $settings.aiAPIKey)
+
+                        TextField("Modellnamn (valfritt)", text: $settings.aiModelName)
+                            .autocapitalization(.none)
+                            .disableAutocorrection(true)
+                    }
+                } header: {
+                    Text("AI-konfiguration")
+                } footer: {
+                    if settings.aiProvider == .customAPI {
+                        Text("API:t ska ta emot en bild (multipart/form-data) och returnera JSON med \"detections\"-array. Varje detektion: {type, confidence, bbox: [x,y,w,h], description}")
+                    } else {
+                        Text(settings.aiProvider.description)
+                    }
+                }
+
                 // Auto-capture
                 Section("Auto-capture") {
                     Toggle("Automatisk bildtagning", isOn: $settings.autoCaptureEnabled)
@@ -101,6 +132,35 @@ struct SettingsView: View {
                     Text("Datahantering")
                 }
 
+                // Report Delivery
+                Section {
+                    TextField("Mottagarens e-post", text: $settings.reportRecipientEmail)
+                        .keyboardType(.emailAddress)
+                        .textContentType(.emailAddress)
+                        .autocapitalization(.none)
+                        .disableAutocorrection(true)
+
+                    TextField("Rapport-API endpoint (valfritt)", text: $settings.reportAPIEndpoint)
+                        .keyboardType(.URL)
+                        .textContentType(.URL)
+                        .autocapitalization(.none)
+                        .disableAutocorrection(true)
+
+                    if !settings.reportAPIEndpoint.isEmpty {
+                        SecureField("Rapport-API nyckel", text: $settings.reportAPIKey)
+                    }
+
+                    Toggle("Skicka rapport automatiskt", isOn: $settings.autoSendReport)
+                } header: {
+                    Text("Rapportleverans")
+                } footer: {
+                    if settings.autoSendReport {
+                        Text("Rapporten skickas automatiskt via e-post och/eller API när skanningen är klar")
+                    } else {
+                        Text("Du kan skicka rapporten manuellt från rapportvyn")
+                    }
+                }
+
                 // About
                 Section("Om") {
                     HStack {
@@ -110,10 +170,21 @@ struct SettingsView: View {
                             .foregroundStyle(.secondary)
                     }
                     HStack {
-                        Text("AI-modell")
+                        Text("AI-källa")
                         Spacer()
-                        Text("Vision Framework (Placeholder)")
+                        Text(settings.aiProvider == .onDevice ? "Vision Framework (on-device)" : settings.aiAPIEndpoint.isEmpty ? "Ej konfigurerad" : settings.aiAPIEndpoint)
                             .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                            .truncationMode(.middle)
+                    }
+                    if !settings.reportRecipientEmail.isEmpty {
+                        HStack {
+                            Text("Rapport till")
+                            Spacer()
+                            Text(settings.reportRecipientEmail)
+                                .foregroundStyle(.secondary)
+                                .lineLimit(1)
+                        }
                     }
                 }
             }

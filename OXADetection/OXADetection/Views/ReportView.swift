@@ -5,10 +5,16 @@ import SwiftUI
 struct ReportView: View {
     let report: OSHReport
     let sessionId: UUID
+    @EnvironmentObject var settings: AppSettings
     @Environment(\.dismiss) private var dismiss
+    @StateObject private var deliveryService = ReportDeliveryService()
     @State private var showingShareSheet = false
+    @State private var showingMailCompose = false
+    @State private var emailData: EmailData?
     @State private var exportURL: URL?
     @State private var exportError: String?
+    @State private var deliveryMessage: String?
+    @State private var deliveryIsSuccess = false
 
     var body: some View {
         NavigationStack {
@@ -31,6 +37,9 @@ struct ReportView: View {
                     if report.location != nil {
                         locationSection
                     }
+
+                    // Send actions
+                    sendSection
                 }
                 .padding()
             }
@@ -53,6 +62,24 @@ struct ReportView: View {
                         } label: {
                             Label("Exportera PDF", systemImage: "doc.richtext")
                         }
+
+                        Divider()
+
+                        if !settings.reportRecipientEmail.isEmpty {
+                            Button {
+                                sendViaEmail()
+                            } label: {
+                                Label("Skicka via e-post", systemImage: "envelope")
+                            }
+                        }
+
+                        if !settings.reportAPIEndpoint.isEmpty {
+                            Button {
+                                Task { await sendToAPI() }
+                            } label: {
+                                Label("Skicka till API", systemImage: "arrow.up.circle")
+                            }
+                        }
                     } label: {
                         Image(systemName: "square.and.arrow.up")
                     }
@@ -63,6 +90,15 @@ struct ReportView: View {
                     ShareSheet(items: [url])
                 }
             }
+            .sheet(isPresented: $showingMailCompose) {
+                if let emailData = emailData {
+                    MailComposeView(emailData: emailData) { success in
+                        showingMailCompose = false
+                        deliveryMessage = success ? "E-post skickad" : "E-post avbruten"
+                        deliveryIsSuccess = success
+                    }
+                }
+            }
             .alert("Exportfel", isPresented: .init(
                 get: { exportError != nil },
                 set: { if !$0 { exportError = nil } }
@@ -70,6 +106,17 @@ struct ReportView: View {
                 Button("OK") { exportError = nil }
             } message: {
                 Text(exportError ?? "")
+            }
+            .alert(
+                deliveryIsSuccess ? "Skickat" : "Fel",
+                isPresented: .init(
+                    get: { deliveryMessage != nil },
+                    set: { if !$0 { deliveryMessage = nil } }
+                )
+            ) {
+                Button("OK") { deliveryMessage = nil }
+            } message: {
+                Text(deliveryMessage ?? "")
             }
         }
     }
@@ -197,6 +244,109 @@ struct ReportView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(.white)
         .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+
+    // MARK: - Send Section
+
+    private var sendSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            let hasEmail = !settings.reportRecipientEmail.isEmpty
+            let hasAPI = !settings.reportAPIEndpoint.isEmpty
+
+            if hasEmail || hasAPI {
+                Text("Skicka rapport")
+                    .font(.headline)
+
+                if hasEmail {
+                    Button {
+                        sendViaEmail()
+                    } label: {
+                        HStack {
+                            Image(systemName: "envelope.fill")
+                                .foregroundStyle(.blue)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Skicka via e-post")
+                                    .font(.subheadline.bold())
+                                    .foregroundStyle(.primary)
+                                Text(settings.reportRecipientEmail)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .font(.caption)
+                                .foregroundStyle(.tertiary)
+                        }
+                        .padding()
+                        .background(Color(.systemGray6))
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                    }
+                }
+
+                if hasAPI {
+                    Button {
+                        Task { await sendToAPI() }
+                    } label: {
+                        HStack {
+                            Image(systemName: "arrow.up.circle.fill")
+                                .foregroundStyle(.green)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Skicka till API")
+                                    .font(.subheadline.bold())
+                                    .foregroundStyle(.primary)
+                                Text(settings.reportAPIEndpoint)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                                    .lineLimit(1)
+                                    .truncationMode(.middle)
+                            }
+                            Spacer()
+                            if deliveryService.isSending {
+                                ProgressView()
+                            } else {
+                                Image(systemName: "chevron.right")
+                                    .font(.caption)
+                                    .foregroundStyle(.tertiary)
+                            }
+                        }
+                        .padding()
+                        .background(Color(.systemGray6))
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                    }
+                    .disabled(deliveryService.isSending)
+                }
+            }
+        }
+        .padding()
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.white)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+
+    // MARK: - Send Actions
+
+    private func sendViaEmail() {
+        do {
+            emailData = try deliveryService.prepareEmail(
+                report: report,
+                sessionId: sessionId,
+                recipientEmail: settings.reportRecipientEmail,
+                format: settings.reportFormat
+            )
+            showingMailCompose = true
+        } catch {
+            exportError = error.localizedDescription
+        }
+    }
+
+    private func sendToAPI() async {
+        let result = await deliveryService.sendToAPI(
+            report: report,
+            endpoint: settings.reportAPIEndpoint,
+            apiKey: settings.reportAPIKey
+        )
+        deliveryMessage = result.message
+        deliveryIsSuccess = result.isSuccess
     }
 
     // MARK: - Export
