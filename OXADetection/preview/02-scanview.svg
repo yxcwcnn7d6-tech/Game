@@ -1,0 +1,118 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="390" height="844" viewBox="0 0 390 844">
+  <defs>
+    <linearGradient id="field" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#87a96b"/>
+      <stop offset="40%" stop-color="#6b8e4e"/>
+      <stop offset="100%" stop-color="#4a6b3a"/>
+    </linearGradient>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#6ba3be"/>
+      <stop offset="100%" stop-color="#87b5a5"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Phone frame -->
+  <rect width="390" height="844" fill="#111" rx="40"/>
+
+  <!-- Camera feed simulation - outdoor field scene -->
+  <!-- Sky -->
+  <rect x="4" y="4" width="382" height="350" fill="url(#sky)" rx="38"/>
+  <!-- Field/ground -->
+  <rect x="4" y="300" width="382" height="540" fill="url(#field)"/>
+
+  <!-- Terrain details -->
+  <ellipse cx="80" cy="500" rx="45" ry="12" fill="#5a7a42" opacity="0.5"/>
+  <ellipse cx="280" cy="450" rx="55" ry="10" fill="#5a7a42" opacity="0.4"/>
+  <ellipse cx="170" cy="580" rx="35" ry="8" fill="#5a7a42" opacity="0.3"/>
+
+  <!-- Rocks/objects in field -->
+  <ellipse cx="290" cy="400" rx="18" ry="10" fill="#7a7a72"/>
+  <ellipse cx="120" cy="520" rx="12" ry="7" fill="#8a8a80"/>
+
+  <!-- Suspicious cylindrical object (OXA-like) -->
+  <g transform="translate(270, 490)">
+    <rect x="-22" y="-8" width="44" height="16" rx="6" fill="#8B6914" stroke="#6B5010" stroke-width="1"/>
+    <ellipse cx="-22" cy="0" rx="4" ry="8" fill="#9B7924"/>
+    <rect x="-2" y="-4" width="8" height="8" rx="1" fill="#6B5010" opacity="0.5"/>
+  </g>
+
+  <!-- GRID OVERLAY -->
+  <!-- Vertical center line -->
+  <line x1="195" y1="44" x2="195" y2="750" stroke="white" stroke-width="1.5" opacity="0.6"/>
+  <!-- Horizontal center line -->
+  <line x1="4" y1="397" x2="386" y2="397" stroke="white" stroke-width="1.5" opacity="0.6"/>
+
+  <!-- Quadrant labels -->
+  <!-- NW -->
+  <rect x="85" y="200" width="30" height="18" rx="9" fill="rgba(0,0,0,0.5)"/>
+  <text x="100" y="213" fill="white" font-family="-apple-system, SF Pro" font-size="10" font-weight="700" text-anchor="middle">NW</text>
+  <!-- Completed checkmark -->
+  <circle cx="100" cy="170" r="12" fill="rgba(34,197,94,0.2)"/>
+  <text x="100" y="175" fill="#22c55e" font-size="14" text-anchor="middle">✓</text>
+  <!-- Green tint -->
+  <rect x="4" y="44" width="191" height="353" fill="rgba(34,197,94,0.08)"/>
+
+  <!-- NE - current/active quadrant -->
+  <rect x="275" y="200" width="28" height="18" rx="9" fill="rgba(0,0,0,0.5)"/>
+  <text x="289" y="213" fill="white" font-family="-apple-system, SF Pro" font-size="10" font-weight="700" text-anchor="middle">NE</text>
+  <!-- Orange active border -->
+  <rect x="195" y="44" width="191" height="353" fill="rgba(255,140,0,0.12)" stroke="#FF8C00" stroke-width="3"/>
+
+  <!-- SW -->
+  <rect x="85" y="560" width="28" height="18" rx="9" fill="rgba(0,0,0,0.5)"/>
+  <text x="99" y="573" fill="white" font-family="-apple-system, SF Pro" font-size="10" font-weight="700" text-anchor="middle">SW</text>
+
+  <!-- SE - suspicious -->
+  <rect x="275" y="560" width="26" height="18" rx="9" fill="rgba(0,0,0,0.5)"/>
+  <text x="288" y="573" fill="white" font-family="-apple-system, SF Pro" font-size="10" font-weight="700" text-anchor="middle">SE</text>
+  <!-- Warning icon -->
+  <circle cx="288" cy="530" r="12" fill="rgba(239,68,68,0.2)"/>
+  <text x="288" y="535" fill="#ef4444" font-size="14" text-anchor="middle">⚠</text>
+  <!-- Red tint -->
+  <rect x="195" y="397" width="191" height="353" fill="rgba(239,68,68,0.1)"/>
+
+  <!-- Detection bounding box on suspicious object -->
+  <rect x="245" y="478" width="55" height="28" rx="2" fill="none" stroke="#ef4444" stroke-width="2"/>
+  <rect x="245" y="464" width="78" height="14" rx="3" fill="#ef4444"/>
+  <text x="249" y="474" fill="white" font-family="-apple-system, SF Pro" font-size="8" font-weight="700">Misstänkt OXA</text>
+
+  <!-- Second detection -->
+  <rect x="105" y="510" width="35" height="22" rx="2" fill="none" stroke="#f59e0b" stroke-width="2"/>
+  <rect x="105" y="497" width="68" height="13" rx="3" fill="#f59e0b"/>
+  <text x="109" y="507" fill="white" font-family="-apple-system, SF Pro" font-size="7.5" font-weight="700">Metalliskt föremål</text>
+
+  <!-- TOP BAR -->
+  <!-- Close button -->
+  <circle cx="35" cy="60" r="18" fill="rgba(0,0,0,0.4)"/>
+  <text x="35" y="65" fill="white" font-size="16" text-anchor="middle" font-family="-apple-system, SF Pro">✕</text>
+
+  <!-- Phase indicator pill -->
+  <rect x="135" y="44" width="120" height="32" rx="16" fill="rgba(255,255,255,0.15)" style="backdrop-filter: blur(10px)"/>
+  <text x="195" y="57" fill="#FF8C00" font-family="-apple-system, SF Pro" font-size="11" font-weight="700" text-anchor="middle">Detaljskanning</text>
+  <text x="195" y="70" fill="rgba(255,255,255,0.7)" font-family="-apple-system, SF Pro" font-size="9" text-anchor="middle">Kvadrant 2 av 4</text>
+
+  <!-- Zoom indicator -->
+  <rect x="320" y="48" width="45" height="24" rx="12" fill="rgba(255,255,255,0.15)"/>
+  <text x="342" y="64" fill="white" font-family="-apple-system, SF Pro" font-size="12" font-weight="700" text-anchor="middle">2.0x</text>
+
+  <!-- BOTTOM CONTROLS -->
+  <!-- Guidance text -->
+  <rect x="45" y="708" width="300" height="34" rx="17" fill="rgba(0,0,0,0.6)"/>
+  <text x="195" y="730" fill="white" font-family="-apple-system, SF Pro" font-size="13" font-weight="600" text-anchor="middle">Rikta kameran mot NE - auto-capture</text>
+
+  <!-- Stability indicator -->
+  <rect x="140" y="750" width="110" height="22" rx="11" fill="rgba(0,0,0,0.5)"/>
+  <circle cx="160" cy="761" r="4" fill="#22c55e"/>
+  <text x="200" y="766" fill="rgba(255,255,255,0.8)" font-family="-apple-system, SF Pro" font-size="10" text-anchor="middle">Stabil</text>
+
+  <!-- Skip button -->
+  <circle cx="80" cy="798" r="25" fill="rgba(255,255,255,0.15)"/>
+  <text x="80" y="803" fill="rgba(255,255,255,0.7)" font-size="16" text-anchor="middle">⏩</text>
+
+  <!-- Capture button -->
+  <circle cx="195" cy="798" r="36" fill="none" stroke="white" stroke-width="4"/>
+  <circle cx="195" cy="798" r="31" fill="white"/>
+
+  <!-- Home indicator -->
+  <rect x="140" y="830" width="110" height="5" rx="2.5" fill="rgba(255,255,255,0.3)"/>
+</svg>

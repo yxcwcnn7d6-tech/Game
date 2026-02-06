@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="390" height="844" viewBox="0 0 390 844">
+  <defs>
+    <linearGradient id="bgLight" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f2f2f7"/>
+      <stop offset="100%" stop-color="#e5e5ea"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Phone frame -->
+  <rect width="390" height="844" fill="url(#bgLight)" rx="40"/>
+
+  <!-- Nav bar -->
+  <rect x="0" y="0" width="390" height="96" fill="rgba(242,242,247,0.94)" rx="40"/>
+  <text x="35" y="72" fill="#007AFF" font-family="-apple-system, SF Pro" font-size="16">Stäng</text>
+  <text x="195" y="72" fill="black" font-family="-apple-system, SF Pro" font-size="17" font-weight="600" text-anchor="middle">Rapport</text>
+  <text x="360" y="72" fill="#007AFF" font-family="-apple-system, SF Pro" font-size="18" text-anchor="end">⬆</text>
+  <line x1="0" y1="96" x2="390" y2="96" stroke="rgba(0,0,0,0.1)" stroke-width="0.5"/>
+
+  <!-- Header Card -->
+  <rect x="16" y="112" width="358" height="85" rx="12" fill="white"/>
+  <!-- Viewfinder icon -->
+  <g transform="translate(38, 140)">
+    <g stroke="#FF8C00" stroke-width="2" fill="none" stroke-linecap="round">
+      <path d="M-10,-10 L-10,-5 M-10,-10 L-5,-10"/>
+      <path d="M10,-10 L10,-5 M10,-10 L5,-10"/>
+      <path d="M-10,10 L-10,5 M-10,10 L-5,10"/>
+      <path d="M10,10 L10,5 M10,10 L5,10"/>
+    </g>
+  </g>
+  <text x="60" y="144" fill="black" font-family="-apple-system, SF Pro Display" font-size="19" font-weight="700">OXA Detektionsrapport</text>
+  <text x="36" y="172" fill="#8e8e93" font-family="-apple-system, SF Pro" font-size="14">6 februari 2026, 14:23:15</text>
+
+  <!-- Summary Card -->
+  <rect x="16" y="213" width="358" height="170" rx="12" fill="white"/>
+  <text x="32" y="242" fill="black" font-family="-apple-system, SF Pro" font-size="16" font-weight="600">Sammanfattning</text>
+
+  <!-- Summary grid - 2x2 -->
+  <!-- Images -->
+  <rect x="28" y="256" width="165" height="52" rx="8" fill="#f2f2f7"/>
+  <text x="110" y="275" fill="#007AFF" font-family="-apple-system, SF Pro" font-size="14" text-anchor="middle">📷</text>
+  <text x="110" y="293" fill="black" font-family="-apple-system, SF Pro" font-size="18" font-weight="700" text-anchor="middle">16</text>
+  <text x="110" y="305" fill="#8e8e93" font-family="-apple-system, SF Pro" font-size="10" text-anchor="middle">Bilder</text>
+
+  <!-- Detections -->
+  <rect x="197" y="256" width="165" height="52" rx="8" fill="#f2f2f7"/>
+  <text x="280" y="275" fill="#ef4444" font-family="-apple-system, SF Pro" font-size="14" text-anchor="middle">⚠</text>
+  <text x="280" y="293" fill="black" font-family="-apple-system, SF Pro" font-size="18" font-weight="700" text-anchor="middle">3</text>
+  <text x="280" y="305" fill="#8e8e93" font-family="-apple-system, SF Pro" font-size="10" text-anchor="middle">Detektioner</text>
+
+  <!-- Scan mode -->
+  <rect x="28" y="316" width="165" height="52" rx="8" fill="#f2f2f7"/>
+  <text x="110" y="335" fill="#007AFF" font-family="-apple-system, SF Pro" font-size="14" text-anchor="middle">⊞</text>
+  <text x="110" y="352" fill="black" font-family="-apple-system, SF Pro" font-size="13" font-weight="700" text-anchor="middle">Komplett</text>
+  <text x="110" y="364" fill="#8e8e93" font-family="-apple-system, SF Pro" font-size="10" text-anchor="middle">Skanningsläge</text>
+
+  <!-- AI version -->
+  <rect x="197" y="316" width="165" height="52" rx="8" fill="#f2f2f7"/>
+  <text x="280" y="335" fill="#007AFF" font-family="-apple-system, SF Pro" font-size="14" text-anchor="middle">🤖</text>
+  <text x="280" y="352" fill="black" font-family="-apple-system, SF Pro" font-size="13" font-weight="700" text-anchor="middle">1.0</text>
+  <text x="280" y="364" fill="#8e8e93" font-family="-apple-system, SF Pro" font-size="10" text-anchor="middle">AI-version</text>
+
+  <!-- Detections Card -->
+  <rect x="16" y="399" width="358" height="310" rx="12" fill="white"/>
+  <text x="32" y="428" fill="black" font-family="-apple-system, SF Pro" font-size="16" font-weight="600">Detekterade objekt</text>
+
+  <!-- Detection 1 -->
+  <rect x="28" y="442" width="334" height="82" rx="10" fill="#f2f2f7"/>
+  <text x="44" y="463" fill="#ef4444" font-family="-apple-system, SF Pro" font-size="13">⚠</text>
+  <text x="62" y="463" fill="black" font-family="-apple-system, SF Pro" font-size="13" font-weight="600">misstänkt_oxa</text>
+  <!-- Confidence badge -->
+  <rect x="282" y="449" width="68" height="20" rx="10" fill="rgba(239,68,68,0.1)"/>
+  <text x="316" y="463" fill="#ef4444" font-family="-apple-system, SF Pro" font-size="10" text-anchor="middle">Konfidens: hög</text>
+  <text x="44" y="483" fill="#8e8e93" font-family="-apple-system, SF Pro" font-size="11">Cylindriskt metallföremål, ~20cm, rostfärg</text>
+  <text x="44" y="503" fill="#aeaeb2" font-family="-apple-system, SF Pro" font-size="10">⊞ Kvadrant: SE-1-0</text>
+  <text x="240" y="503" fill="#aeaeb2" font-family="-apple-system, SF Pro" font-size="10">📍 (234, 567)</text>
+
+  <!-- Detection 2 -->
+  <rect x="28" y="534" width="334" height="82" rx="10" fill="#f2f2f7"/>
+  <text x="44" y="555" fill="#f59e0b" font-family="-apple-system, SF Pro" font-size="13">⚠</text>
+  <text x="62" y="555" fill="black" font-family="-apple-system, SF Pro" font-size="13" font-weight="600">metalliskt_föremål</text>
+  <rect x="274" y="541" width="76" height="20" rx="10" fill="rgba(245,158,11,0.1)"/>
+  <text x="312" y="555" fill="#f59e0b" font-family="-apple-system, SF Pro" font-size="10" text-anchor="middle">Konfidens: medel</text>
+  <text x="44" y="575" fill="#8e8e93" font-family="-apple-system, SF Pro" font-size="11">Rektangulärt föremål detekterat</text>
+  <text x="44" y="595" fill="#aeaeb2" font-family="-apple-system, SF Pro" font-size="10">⊞ Kvadrant: SW-0-1</text>
+  <text x="240" y="595" fill="#aeaeb2" font-family="-apple-system, SF Pro" font-size="10">📍 (156, 423)</text>
+
+  <!-- Detection 3 -->
+  <rect x="28" y="626" width="334" height="70" rx="10" fill="#f2f2f7"/>
+  <text x="44" y="647" fill="#eab308" font-family="-apple-system, SF Pro" font-size="13">⚠</text>
+  <text x="62" y="647" fill="black" font-family="-apple-system, SF Pro" font-size="13" font-weight="600">okänt_föremål</text>
+  <rect x="282" y="633" width="68" height="20" rx="10" fill="rgba(234,179,8,0.1)"/>
+  <text x="316" y="647" fill="#eab308" font-family="-apple-system, SF Pro" font-size="10" text-anchor="middle">Konfidens: låg</text>
+  <text x="44" y="667" fill="#8e8e93" font-family="-apple-system, SF Pro" font-size="11">Misstänkt område identifierat via saliensanalys</text>
+  <text x="44" y="683" fill="#aeaeb2" font-family="-apple-system, SF Pro" font-size="10">⊞ Kvadrant: NE-1-1</text>
+
+  <!-- Location Card -->
+  <rect x="16" y="725" width="358" height="65" rx="12" fill="white"/>
+  <text x="32" y="752" fill="black" font-family="-apple-system, SF Pro" font-size="16" font-weight="600">Plats</text>
+  <text x="50" y="772" fill="#ef4444" font-family="-apple-system, SF Pro" font-size="13">📍</text>
+  <text x="68" y="773" fill="black" font-family="-apple-system, SF Pro, monospace" font-size="14">59.858600, 17.638900</text>
+
+  <!-- Home indicator -->
+  <rect x="140" y="826" width="110" height="5" rx="2.5" fill="rgba(0,0,0,0.2)"/>
+</svg>
