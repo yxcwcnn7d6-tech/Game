@@ -6,6 +6,8 @@ iOS Shortcut: Bildanalys med Anthropic Claude (OSH-rapport)
 Denna shortcut tar en bild (kamera eller bildbibliotek), skickar den
 till Anthropic Claude Vision API, och visar en OSH-rapport.
 
+Testad och verifierad 2026-02-06.
+
 FÖRUTSÄTTNINGAR
 ---------------
 - Anthropic API-nyckel (börjar med "sk-ant-...")
@@ -13,20 +15,8 @@ FÖRUTSÄTTNINGAR
 - Appen "Genvägar" (Shortcuts)
 
 
-VARFÖR "TEXT"-BLOCKET INTE FUNGERAR MED JSON
-=============================================
-iOS Shortcuts "Text"-action har problem med:
-  1. \n-tecken tolkas/försvinner
-  2. Klammerparenteser {} kan förväxlas med Shortcuts-variabler
-  3. Citattecken inuti JSON kan avsluta texten i förtid
-  4. Om "Hämta innehåll på URL" har Request Body satt till "JSON"
-     så parsar iOS om texten och förstör strukturen
-
-Lösningen nedan undviker alla dessa problem.
-
-
-STEG-FÖR-STEG: BYGG SHORTCUTEN (BEPRÖVAD METOD)
-==================================================
+STEG-FÖR-STEG (BEPRÖVAD METOD)
+================================
 
 STEG 1: Skapa ny genväg
    -> Öppna Genvägar-appen
@@ -35,120 +25,84 @@ STEG 1: Skapa ny genväg
 
 
 STEG 2: Ta foto
-   -> Lägg till åtgärd: "Take Photo" (Ta foto)
+   -> Lägg till: "Take Photo"
    -> "Show Camera Preview": PÅ
 
 
-STEG 3: Ändra storlek (minskar API-kostnad och förhindrar 413-fel)
-   -> Lägg till: "Resize Image" (Ändra storlek på bild)
+STEG 3: Ändra storlek (minskar kostnad, förhindrar 413-fel)
+   -> Lägg till: "Resize Image"
    -> Input: [Photo]
    -> Width: 1024
    -> Height: Auto
 
 
 STEG 4: Konvertera till JPEG
-   -> Lägg till: "Convert Image" (Konvertera bild)
+   -> Lägg till: "Convert Image"
    -> Input: [Resized Image]
    -> Format: JPEG
    -> Quality: 0.7
 
 
-STEG 5: Base64-koda bilden
-   -> Lägg till: "Base64 Encode" (Koda med Base64)
+STEG 5: Base64-koda
+   -> Lägg till: "Base64 Encode"
    -> Input: [Converted Image]
    -> Mode: "Encode"
 
-   Variabeln heter nu [Base64 Encoded]
+
+STEG 6: Rensa radbrytningar ur base64 (KRITISKT!)
+   -> Lägg till: "Replace Text"
+   -> Find: [\r\n]
+   -> Replace with: (LÄMNA HELT TOMT - skriv ingenting!)
+   -> In: [Base64 Encoded]
+   -> Tryck på pilen (>) och sätt "Regular Expression": PÅ
+
+   iOS Base64 Encode lägger in radbrytningar var 76:e tecken.
+   Dessa förstör JSON:en om de inte tas bort.
 
 
-STEG 6: Skriv prompten (SEPARAT Text-block)
+STEG 7: JSON med prompt (ETT Text-block)
    -> Lägg till: "Text"
-   -> Skriv in prompten UTAN \n-tecken, använd riktig text:
+   -> Klistra in exakt (EN rad, inga radbrytningar):
 
-Analysera bilden och ge en komplett OSH-rapport for raddningstjansten. OSH = Objekt, Skada, Hot (framkomstrapport). Formatera tydligt enligt: OBJEKT: Beskriv vad som ar inblandat. SKADA: Beskriv synlig eller potentiell skada. HOT: Identifiera risker och faror. Var konkret och anvand raddningstjanstterminologi.
-
-   OBS: Undvik svenska tecken (åäö) i prompten - de kan orsaka
-   kodningsproblem. Använd "a" istället för "ä" etc.
-   Claude förstår ändå.
-
-   Namnge denna variabel till "MinPrompt" (tryck länge på variabeln
-   -> "Rename Variable")
+{"model":"claude-sonnet-4-20250514","max_tokens":1500,"messages":[{"role":"user","content":[{"type":"image","source":{"type":"base64","media_type":"image/jpeg","data":"IMGDATA"}},{"type":"text","text":"Analysera bilden och ge en OSH-rapport. OBJEKT: Beskriv vad som ar inblandat. SKADA: Beskriv synlig eller potentiell skada. HOT: Identifiera risker och faror."}]}]}
 
 
-STEG 7: Bygg JSON (två delar + sammansättning)
-
-   Detta är NYCKELN - vi bygger JSON i delar för att undvika
-   att Shortcuts förstör formateringen.
-
-   7a. Lägg till: "Text"
-       Skriv exakt (EN rad, inga radbrytningar):
-
-{"model":"claude-sonnet-4-20250514","max_tokens":1500,"messages":[{"role":"user","content":[{"type":"image","source":{"type":"base64","media_type":"image/jpeg","data":"
-
-   Namnge denna till "JsonStart"
+STEG 8: Ersätt placeholder med riktig base64
+   -> Lägg till: "Replace Text"
+   -> Find: IMGDATA
+   -> Replace with: [Updated Text] (output från Steg 6)
+   -> Regular Expression: AV
 
 
-   7b. Lägg till: "Text"
-       Skriv exakt (EN rad):
-
-"}},{"type":"text","text":"
-
-   Namnge denna till "JsonMitt"
-
-
-   7c. Lägg till: "Text"
-       Skriv exakt (EN rad):
-
-"}}]}]}
-
-   Namnge denna till "JsonSlut"
-
-
-   7d. Sätt ihop allt:
-       Lägg till: "Text"
-       Skriv (genom att dra in variablerna):
-
-       [JsonStart][Base64 Encoded][JsonMitt][MinPrompt][JsonSlut]
-
-       (Du sätter in variablerna genom att trycka på "Insert Variable"
-       eller dra dem från listan ovanför tangentbordet)
-
-   Namnge denna till "FullJson"
-
-
-STEG 8: Skicka API-anropet
-   -> Lägg till: "Get Contents of URL" (Hämta innehåll på URL)
+STEG 9: Skicka API-anrop
+   -> Lägg till: "Get Contents of URL"
    -> URL: https://api.anthropic.com/v1/messages
    -> Method: POST
-   -> Headers - tryck "Add New Header" tre gånger:
+   -> Headers (lägg till 3 st):
+      Content-Type      : application/json
+      x-api-key         : sk-ant-DIN-NYCKEL-HÄR
+      anthropic-version : 2023-06-01
 
-      Key: Content-Type         Value: application/json
-      Key: x-api-key            Value: sk-ant-DIN-NYCKEL-HÄR
-      Key: anthropic-version    Value: 2023-06-01
-
-   -> Request Body: FILE  <--- KRITISKT! Välj "File", INTE "JSON"!
-   -> File: [FullJson]
-
-   Om du inte ser "File" som alternativ:
-   -> Välj "Form" först, sedan byt till "File"
+   -> Request Body: FILE   <--- KRITISKT! Inte "JSON"!
+   -> File: [Updated Text] (output från Steg 8)
 
 
-STEG 9: Extrahera svaret
-   -> Lägg till: "Get Dictionary Value" (Hämta ordlistevärde)
-   -> Input: [Contents of URL]
+STEG 10: Extrahera svaret
+   -> Lägg till: "Get Dictionary Value"
    -> Key: content
+   -> In: [Contents of URL]
 
-   -> Lägg till: "Get Item from List" (Hämta objekt från lista)
-   -> Input: [Dictionary Value]
+   -> Lägg till: "Get Item from List"
    -> Get: "First Item"
+   -> From: [Dictionary Value]
 
-   -> Lägg till: "Get Dictionary Value" (Hämta ordlistevärde)
-   -> Input: [Item from List]
+   -> Lägg till: "Get Dictionary Value"
    -> Key: text
+   -> In: [Item from List]
 
 
-STEG 10: Visa resultatet
-   -> Lägg till: "Show Result" (Visa resultat)
+STEG 11: Visa resultatet
+   -> Lägg till: "Show Result"
    -> Input: [Dictionary Value]
 
    (Valfritt) Kopiera till urklipp:
@@ -156,60 +110,55 @@ STEG 10: Visa resultatet
    -> Input: [Dictionary Value]
 
 
-ALTERNATIV VARIANT: MED VALFRI PROMPT
-======================================
-Om du vill kunna skriva en egen fråga varje gång:
-
-Ersätt STEG 6 med:
-   -> Lägg till: "Ask for Input" (Be om indata)
-   -> Fråga: "Vad vill du veta om bilden?"
-   -> Input Type: Text
-   -> Default Answer: "Beskriv vad du ser i bilden"
-
-   Använd sedan [Provided Input] istället för [MinPrompt]
-   i Steg 7d.
-
-
-BONUS: SHARE SHEET (skicka bild från valfri app)
-==================================================
-1. Tryck på shortcutens namn högst upp
-2. Välj "Details" / "Detaljer"
-3. Sätt PÅ "Show in Share Sheet"
-4. Under "Share Sheet Types" välj bara "Images"
-5. Ändra Steg 2: Ta bort "Take Photo"
-6. Lägg till: "Shortcut Input" (Genvägens indata)
-7. Använd [Shortcut Input] som input till Steg 3
+SAMMANFATTNING AV ACTIONS (12 st)
+===================================
+ 1. Take Photo
+ 2. Resize Image (1024 x Auto)
+ 3. Convert Image (JPEG, 0.7)
+ 4. Base64 Encode
+ 5. Replace Text: [\r\n] -> (tomt), Regex PÅ
+ 6. Text: JSON med IMGDATA placeholder
+ 7. Replace Text: IMGDATA -> [Updated Text], Regex AV
+ 8. Get Contents of URL (POST, File body)
+ 9. Get Dictionary Value (key: content)
+10. Get Item from List (First Item)
+11. Get Dictionary Value (key: text)
+12. Show Result
 
 
-FELSÖKNING
-==========
-Problem: "The request body is not valid JSON"
-  -> Kontrollera att FullJson-texten inte har osynliga radbrytningar
-  -> Se till att Request Body är "File", INTE "JSON"
-  -> Testa: Lägg till "Quick Look" på [FullJson] för att inspektera
+VIKTIGA FALLGROPAR
+==================
+1. Request Body MÅSTE vara "File", inte "JSON" eller "Form"
+2. Base64-radbrytningar MÅSTE rensas (Steg 6), annars "invalid JSON"
+3. Regex i Steg 6 MÅSTE vara PÅ, i Steg 8 MÅSTE vara AV
+4. Replace-fältet i Steg 6 MÅSTE vara helt tomt (inte "World", " ", etc.)
+5. API-nyckeln visas bara i sin helhet vid skapande - kopiera direkt!
 
-Problem: "Request Entity Too Large" / 413-fel
-  -> Bilden är för stor. Sänk kvaliteten eller minska storleken mer.
 
-Problem: "Invalid API Key" / 401-fel
-  -> Kontrollera att x-api-key headern har rätt nyckel utan mellanslag.
-  -> Se till att det inte blev ett extra mellanslag i början/slutet.
+ANPASSA PROMPTEN
+================
+Ändra texten efter "text":" i Steg 7 JSON:en.
+Undvik \n, citattecken (") och åäö i prompten.
+Claude förstår "a" istället för "ä" osv.
 
-Problem: "Could not convert to expected type"
-  -> Request Body MÅSTE vara "File", inte "JSON" eller "Form"
+Exempelprompts:
+  "Beskriv vad du ser i bilden"
+  "Las av texten i bilden och returnera den"
+  "Identifiera alla produkter i bilden"
 
-Problem: Svaret visar bara "content" eller ser konstigt ut
-  -> Du har missat ett "Get Dictionary Value"-steg.
-  -> Kedjan ska vara: content -> First Item -> text
 
-Problem: Tomma/konstiga tecken i svaret
-  -> Kolla att variablerna i Steg 7d verkligen refererar till rätt
-     variabler (tryck på dem för att verifiera).
+BONUS: SHARE SHEET
+===================
+Skicka bilder från valfri app:
+1. Tryck på shortcutens namn -> Details
+2. Sätt PÅ "Show in Share Sheet"
+3. Under "Share Sheet Types" välj bara "Images"
+4. Byt "Take Photo" mot "Shortcut Input"
 
 
 MODELLVAL
 =========
-Byt "claude-sonnet-4-20250514" i Steg 7a mot:
+Byt "claude-sonnet-4-20250514" i Steg 7 mot:
   claude-sonnet-4-20250514    Snabb, bra balans (~0.03 kr/bild)
   claude-haiku-3-5-20241022  Snabbast, billigast (~0.005 kr/bild)
   claude-opus-4-20250514    Mest kapabel (~0.15 kr/bild)
