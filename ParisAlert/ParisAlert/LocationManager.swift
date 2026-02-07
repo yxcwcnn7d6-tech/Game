@@ -2,7 +2,7 @@ import Foundation
 import CoreLocation
 import UserNotifications
 
-final class LocationManager: NSObject, ObservableObject {
+class LocationManager: NSObject, ObservableObject {
 
     // Paris city center and approximate radius (~10 km covers central Paris)
     static let parisCenter = CLLocationCoordinate2D(latitude: 48.8566, longitude: 2.3522)
@@ -14,21 +14,37 @@ final class LocationManager: NSObject, ObservableObject {
     @Published var lastLocation: CLLocation?
     @Published var monitoringActive = false
 
-    private let manager = CLLocationManager()
+    private var manager: CLLocationManager?
 
     override init() {
         super.init()
-        manager.delegate = self
-        manager.desiredAccuracy = kCLLocationAccuracyHundredMeters
-        manager.allowsBackgroundLocationUpdates = true
-        manager.pausesLocationUpdatesAutomatically = false
-        authorizationStatus = manager.authorizationStatus
+        let mgr = CLLocationManager()
+        mgr.delegate = self
+        mgr.desiredAccuracy = kCLLocationAccuracyHundredMeters
+        mgr.allowsBackgroundLocationUpdates = true
+        mgr.pausesLocationUpdatesAutomatically = false
+        manager = mgr
+        authorizationStatus = mgr.authorizationStatus
+    }
+
+    /// Preview-only initializer — does not create a real CLLocationManager.
+    init(
+        isInParis: Bool,
+        authorizationStatus: CLAuthorizationStatus,
+        lastLocation: CLLocation?,
+        monitoringActive: Bool
+    ) {
+        super.init()
+        self.isInParis = isInParis
+        self.authorizationStatus = authorizationStatus
+        self.lastLocation = lastLocation
+        self.monitoringActive = monitoringActive
     }
 
     // MARK: - Public API
 
     func requestPermission() {
-        manager.requestAlwaysAuthorization()
+        manager?.requestAlwaysAuthorization()
         requestNotificationPermission()
     }
 
@@ -41,21 +57,23 @@ final class LocationManager: NSObject, ObservableObject {
         region.notifyOnEntry = true
         region.notifyOnExit = true
 
-        manager.startMonitoring(for: region)
-        manager.startUpdatingLocation()
+        manager?.startMonitoring(for: region)
+        manager?.startUpdatingLocation()
         monitoringActive = true
     }
 
     func stopMonitoring() {
-        for region in manager.monitoredRegions {
-            manager.stopMonitoring(for: region)
+        if let manager {
+            for region in manager.monitoredRegions {
+                manager.stopMonitoring(for: region)
+            }
+            manager.stopUpdatingLocation()
         }
-        manager.stopUpdatingLocation()
         monitoringActive = false
     }
 
     func checkCurrentLocation() {
-        manager.requestLocation()
+        manager?.requestLocation()
     }
 
     // MARK: - Notifications

@@ -157,7 +157,54 @@ struct ContentView: View {
     }
 }
 
-#Preview {
+// MARK: - Previews
+
+#Preview("I Paris") {
     ContentView()
-        .environmentObject(LocationManager())
+        .environmentObject(LocationManager(
+            isInParis: true,
+            authorizationStatus: .authorizedAlways,
+            lastLocation: CLLocation(latitude: 48.8584, longitude: 2.2945), // Eiffeltornet
+            monitoringActive: true
+        ))
+}
+
+#Preview("Utanför Paris — Stockholm") {
+    ContentView()
+        .environmentObject(LocationManager(
+            isInParis: false,
+            authorizationStatus: .authorizedAlways,
+            lastLocation: CLLocation(latitude: 59.3293, longitude: 18.0686), // Stockholm
+            monitoringActive: true
+        ))
+}
+
+#Preview("Behörighet ej begärd") {
+    ContentView()
+        .environmentObject(LocationManager(
+            isInParis: false,
+            authorizationStatus: .notDetermined,
+            lastLocation: nil,
+            monitoringActive: false
+        ))
+}
+
+#Preview("Behörighet nekad") {
+    ContentView()
+        .environmentObject(LocationManager(
+            isInParis: false,
+            authorizationStatus: .denied,
+            lastLocation: nil,
+            monitoringActive: false
+        ))
+}
+
+#Preview("Övervakning inaktiv") {
+    ContentView()
+        .environmentObject(LocationManager(
+            isInParis: false,
+            authorizationStatus: .authorizedWhenInUse,
+            lastLocation: nil,
+            monitoringActive: false
+        ))
 }
