@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digitala AI-Partiet — Ett bättre Sverige för alla</title>
+    <style>
+        :root {
+            --primary: #003d7a;
+            --primary-light: #0057b7;
+            --accent: #f5c518;
+            --accent-warm: #e8a800;
+            --bg: #fafbfc;
+            --bg-card: #ffffff;
+            --text: #1a1a2e;
+            --text-light: #555;
+            --text-muted: #888;
+            --border: #e0e4ea;
+            --success: #28a745;
+            --shadow: 0 2px 12px rgba(0,0,0,0.08);
+            --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+            --radius: 12px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        /* --- NAV --- */
+        nav {
+            position: fixed; top: 0; width: 100%; z-index: 100;
+            background: rgba(0, 61, 122, 0.97);
+            backdrop-filter: blur(10px);
+            padding: 0 2rem;
+            display: flex; align-items: center; justify-content: space-between;
+            height: 64px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        nav .logo {
+            font-size: 1.2rem; font-weight: 700; color: #fff;
+            display: flex; align-items: center; gap: 0.5rem;
+        }
+        nav .logo span { color: var(--accent); }
+        nav ul {
+            list-style: none; display: flex; gap: 1.5rem;
+        }
+        nav ul li a {
+            color: rgba(255,255,255,0.85); text-decoration: none;
+            font-size: 0.95rem; font-weight: 500;
+            transition: color 0.2s;
+        }
+        nav ul li a:hover { color: var(--accent); }
+
+        .mobile-toggle {
+            display: none; background: none; border: none;
+            color: #fff; font-size: 1.5rem; cursor: pointer;
+        }
+
+        /* --- HERO --- */
+        .hero {
+            min-height: 100vh;
+            display: flex; align-items: center; justify-content: center;
+            background: linear-gradient(135deg, #001d3d 0%, #003d7a 40%, #0057b7 100%);
+            position: relative; overflow: hidden;
+            padding: 6rem 2rem 4rem;
+            text-align: center;
+        }
+        .hero::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+        .hero-content {
+            position: relative; z-index: 1; max-width: 800px;
+        }
+        .hero-badge {
+            display: inline-block;
+            background: rgba(245, 197, 24, 0.15);
+            border: 1px solid rgba(245, 197, 24, 0.3);
+            color: var(--accent);
+            padding: 0.4rem 1.2rem; border-radius: 50px;
+            font-size: 0.85rem; font-weight: 600;
+            margin-bottom: 1.5rem;
+            letter-spacing: 0.05em;
+        }
+        .hero h1 {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 800; color: #fff;
+            line-height: 1.15; margin-bottom: 1.5rem;
+        }
+        .hero h1 em {
+            font-style: normal;
+            background: linear-gradient(90deg, var(--accent), #ffd95c);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero p {
+            font-size: 1.25rem; color: rgba(255,255,255,0.8);
+            max-width: 600px; margin: 0 auto 2.5rem;
+        }
+        .hero-actions {
+            display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;
+        }
+        .btn {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            padding: 0.85rem 2rem; border-radius: 50px;
+            font-size: 1rem; font-weight: 600;
+            text-decoration: none; cursor: pointer;
+            transition: all 0.3s ease; border: none;
+        }
+        .btn-primary {
+            background: var(--accent); color: var(--primary);
+            box-shadow: 0 4px 15px rgba(245, 197, 24, 0.3);
+        }
+        .btn-primary:hover {
+            background: #ffd95c; transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245, 197, 24, 0.4);
+        }
+        .btn-secondary {
+            background: rgba(255,255,255,0.1); color: #fff;
+            border: 1px solid rgba(255,255,255,0.25);
+        }
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.2); transform: translateY(-2px);
+        }
+
+        /* --- SECTIONS --- */
+        section {
+            padding: 5rem 2rem;
+        }
+        .section-title {
+            text-align: center; margin-bottom: 3rem;
+        }
+        .section-title h2 {
+            font-size: 2.2rem; font-weight: 700; color: var(--primary);
+            margin-bottom: 0.75rem;
+        }
+        .section-title p {
+            font-size: 1.1rem; color: var(--text-light);
+            max-width: 600px; margin: 0 auto;
+        }
+        .container {
+            max-width: 1200px; margin: 0 auto;
+        }
+
+        /* --- PLATFORM --- */
+        #platform { background: #fff; }
+        .platform-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+        .platform-card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 2rem;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .platform-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+        .platform-icon {
+            width: 52px; height: 52px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; margin-bottom: 1rem;
+        }
+        .platform-card h3 {
+            font-size: 1.15rem; margin-bottom: 0.5rem; color: var(--primary);
+        }
+        .platform-card p {
+            font-size: 0.95rem; color: var(--text-light); line-height: 1.7;
+        }
+
+        /* --- MINISTERS --- */
+        #ministers { background: var(--bg); }
+        .ministers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 1.5rem;
+        }
+        .minister-card {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.75rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .minister-card::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0; height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            transform: scaleX(0); transition: transform 0.3s;
+            transform-origin: left;
+        }
+        .minister-card:hover::before { transform: scaleX(1); }
+        .minister-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+        .minister-card.active {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(0,61,122,0.2);
+        }
+        .minister-card.active::before { transform: scaleX(1); }
+        .minister-avatar {
+            width: 56px; height: 56px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.4rem; color: #fff; font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        .minister-card h3 {
+            font-size: 1rem; color: var(--primary); margin-bottom: 0.15rem;
+        }
+        .minister-card .codename {
+            font-size: 0.85rem; color: var(--accent-warm); font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        .minister-card .domain {
+            font-size: 0.88rem; color: var(--text-light); line-height: 1.5;
+        }
+        .minister-card .traits {
+            margin-top: 0.75rem;
+            display: flex; flex-wrap: wrap; gap: 0.35rem;
+        }
+        .trait-tag {
+            background: rgba(0, 61, 122, 0.06);
+            color: var(--primary);
+            padding: 0.2rem 0.6rem; border-radius: 50px;
+            font-size: 0.75rem; font-weight: 500;
+        }
+
+        /* --- CHAT --- */
+        #chat {
+            background: #fff;
+        }
+        .chat-container {
+            max-width: 900px; margin: 0 auto;
+        }
+        .chat-setup {
+            text-align: center;
+            padding: 2rem;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            margin-bottom: 1.5rem;
+        }
+        .chat-setup p {
+            margin-bottom: 1rem; color: var(--text-light); font-size: 0.95rem;
+        }
+        .api-key-row {
+            display: flex; gap: 0.75rem; max-width: 500px; margin: 0 auto;
+            align-items: stretch;
+        }
+        .api-key-row input {
+            flex: 1; padding: 0.7rem 1rem;
+            border: 1px solid var(--border); border-radius: 8px;
+            font-size: 0.95rem;
+            transition: border-color 0.2s;
+        }
+        .api-key-row input:focus {
+            outline: none; border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0,61,122,0.1);
+        }
+        .api-key-row button {
+            padding: 0.7rem 1.5rem; border-radius: 8px;
+            background: var(--primary); color: #fff;
+            border: none; font-weight: 600; cursor: pointer;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+        .api-key-row button:hover { background: var(--primary-light); }
+        .api-status {
+            margin-top: 0.75rem; font-size: 0.85rem;
+        }
+        .api-status.connected { color: var(--success); }
+        .api-status.error { color: #dc3545; }
+
+        .chat-selected-minister {
+            display: flex; align-items: center; gap: 1rem;
+            padding: 1rem 1.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: #fff;
+            border-radius: var(--radius) var(--radius) 0 0;
+        }
+        .chat-selected-minister .avatar-sm {
+            width: 42px; height: 42px; border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem; font-weight: 700;
+        }
+        .chat-selected-minister .info h4 { font-size: 1rem; }
+        .chat-selected-minister .info span {
+            font-size: 0.85rem; opacity: 0.8;
+        }
+
+        .chat-messages {
+            height: 420px;
+            overflow-y: auto;
+            padding: 1.5rem;
+            background: var(--bg);
+            border-left: 1px solid var(--border);
+            border-right: 1px solid var(--border);
+            display: flex; flex-direction: column; gap: 1rem;
+        }
+        .message {
+            max-width: 80%;
+            padding: 0.85rem 1.15rem;
+            border-radius: 16px;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .message.user {
+            align-self: flex-end;
+            background: var(--primary); color: #fff;
+            border-bottom-right-radius: 4px;
+        }
+        .message.assistant {
+            align-self: flex-start;
+            background: #fff; color: var(--text);
+            border: 1px solid var(--border);
+            border-bottom-left-radius: 4px;
+        }
+        .message.system {
+            align-self: center;
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            text-align: center;
+        }
+        .message .minister-label {
+            font-size: 0.78rem; font-weight: 600;
+            color: var(--primary); margin-bottom: 0.3rem;
+        }
+        .typing-indicator {
+            display: flex; gap: 4px; padding: 0.5rem 0;
+        }
+        .typing-indicator span {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: var(--text-muted);
+            animation: typing 1.4s infinite;
+        }
+        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typing {
+            0%, 60%, 100% { opacity: 0.3; transform: scale(0.8); }
+            30% { opacity: 1; transform: scale(1); }
+        }
+
+        .chat-input-row {
+            display: flex; gap: 0;
+            border: 1px solid var(--border);
+            border-top: none;
+            border-radius: 0 0 var(--radius) var(--radius);
+            overflow: hidden;
+        }
+        .chat-input-row input {
+            flex: 1; padding: 1rem 1.25rem;
+            border: none; font-size: 1rem;
+            background: #fff;
+        }
+        .chat-input-row input:focus { outline: none; }
+        .chat-input-row input:disabled { background: #f5f5f5; }
+        .chat-input-row button {
+            padding: 1rem 1.5rem;
+            background: var(--primary); color: #fff;
+            border: none; font-weight: 600; cursor: pointer;
+            transition: background 0.2s;
+        }
+        .chat-input-row button:hover { background: var(--primary-light); }
+        .chat-input-row button:disabled {
+            background: #ccc; cursor: not-allowed;
+        }
+        .chat-hint {
+            text-align: center; margin-top: 0.75rem;
+            font-size: 0.82rem; color: var(--text-muted);
+        }
+
+        /* --- VALUES --- */
+        #values { background: linear-gradient(135deg, #001d3d, #003d7a); color: #fff; }
+        #values .section-title h2 { color: #fff; }
+        #values .section-title p { color: rgba(255,255,255,0.7); }
+        .values-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+        .value-card {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: var(--radius);
+            padding: 2rem;
+            text-align: center;
+        }
+        .value-card .icon { font-size: 2.5rem; margin-bottom: 1rem; }
+        .value-card h3 { font-size: 1.15rem; margin-bottom: 0.5rem; }
+        .value-card p {
+            font-size: 0.95rem; color: rgba(255,255,255,0.75); line-height: 1.7;
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            background: var(--primary);
+            color: rgba(255,255,255,0.7);
+            text-align: center;
+            padding: 2.5rem 2rem;
+            font-size: 0.9rem;
+        }
+        footer strong { color: var(--accent); }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 768px) {
+            nav ul { display: none; }
+            nav ul.open {
+                display: flex; flex-direction: column;
+                position: absolute; top: 64px; left: 0; right: 0;
+                background: var(--primary); padding: 1rem 2rem;
+                box-shadow: var(--shadow);
+            }
+            .mobile-toggle { display: block; }
+            .hero { padding: 5rem 1.5rem 3rem; }
+            .chat-messages { height: 350px; }
+            .message { max-width: 90%; }
+            .api-key-row { flex-direction: column; }
+        }
+
+        /* Scroll behaviour */
+        html { scroll-behavior: smooth; }
+        section[id] { scroll-margin-top: 72px; }
+    </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+    <div class="logo">
+        <span>&#9670;</span> Digitala AI-Partiet
+    </div>
+    <button class="mobile-toggle" onclick="document.querySelector('nav ul').classList.toggle('open')" aria-label="Meny">&#9776;</button>
+    <ul>
+        <li><a href="#platform">Vår politik</a></li>
+        <li><a href="#ministers">Ministrarna</a></li>
+        <li><a href="#values">Våra värderingar</a></li>
+        <li><a href="#chat">Prata med oss</a></li>
+    </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+    <div class="hero-content">
+        <div class="hero-badge">Sveriges första AI-drivna politiska parti</div>
+        <h1>Ett bättre Sverige<br><em>för alla</em></h1>
+        <p>Vi kombinerar artificiell intelligens med mänskliga värderingar. Datadriven politik, transparent beslutsfattande och ett samhälle där ingen lämnas utanför.</p>
+        <div class="hero-actions">
+            <a href="#chat" class="btn btn-primary">Prata med en minister</a>
+            <a href="#platform" class="btn btn-secondary">Läs vår politik</a>
+        </div>
+    </div>
+</section>
+
+<!-- PLATFORM -->
+<section id="platform">
+    <div class="container">
+        <div class="section-title">
+            <h2>Vår politiska plattform</h2>
+            <p>Konkreta förslag för ett modernare, rättvisare och hållbarare Sverige</p>
+        </div>
+        <div class="platform-grid">
+            <div class="platform-card">
+                <div class="platform-icon">&#128202;</div>
+                <h3>Datadriven politik</h3>
+                <p>Alla politiska beslut ska baseras på evidens och data, inte på ideologiska dogmer. AI-system analyserar konsekvenserna av varje förslag innan det genomförs.</p>
+            </div>
+            <div class="platform-card">
+                <div class="platform-icon">&#127973;</div>
+                <h3>AI i vården</h3>
+                <p>Personaliserad sjukvård genom AI-diagnostik. Kortare vårdköer, bättre förebyggande vård och digital tillgång till sjukvård för alla — oavsett var du bor.</p>
+            </div>
+            <div class="platform-card">
+                <div class="platform-icon">&#127891;</div>
+                <h3>Utbildning för framtiden</h3>
+                <p>Digital kompetens som kärnämne. AI-assisterade lärare som ger varje elev individuellt stöd. Fri tillgång till livslångt lärande via digitala plattformar.</p>
+            </div>
+            <div class="platform-card">
+                <div class="platform-icon">&#127811;</div>
+                <h3>Grön omställning</h3>
+                <p>AI-optimerad energiförbrukning. Realtidsövervakning av utsläpp. Cirkulär ekonomi som standard. Klimatanpassning med rättvis fördelning av kostnader.</p>
+            </div>
+            <div class="platform-card">
+                <div class="platform-icon">&#128188;</div>
+                <h3>Framtidens arbetsmarknad</h3>
+                <p>AI-driven jobbmatchning. Omskolningsprogram för automatiseringens era. Utredning av universell basinkomst som skyddsnät. Flexibla arbetsmodeller.</p>
+            </div>
+            <div class="platform-card">
+                <div class="platform-icon">&#128274;</div>
+                <h3>Digital integritet</h3>
+                <p>Stärkt integritetsskydd i den digitala eran. Medborgarna äger sin data. Etiska ramverk för AI-användning. Transparens i alla algoritmiska beslut.</p>
+            </div>
+            <div class="platform-card">
+                <div class="platform-icon">&#127960;</div>
+                <h3>Smart infrastruktur</h3>
+                <p>100% bredband i hela landet. AI-optimerad kollektivtrafik. Smarta städer med hållbar stadsplanering. Elektrifierade transportsystem.</p>
+            </div>
+            <div class="platform-card">
+                <div class="platform-icon">&#128737;</div>
+                <h3>Cybersäkerhet</h3>
+                <p>AI-driven hotdetektering för att skydda Sverige. Stärkt totalförsvar mot cyberhot och desinformation. Etisk AI i försvaret med mänsklig kontroll.</p>
+            </div>
+            <div class="platform-card">
+                <div class="platform-icon">&#129309;</div>
+                <h3>Transparent demokrati</h3>
+                <p>Medborgardeltagande genom digitala verktyg. Alla politiska beslut motiveras öppet. AI bekämpar desinformation. Stärkt public service och mediefrihet.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- MINISTERS -->
+<section id="ministers">
+    <div class="container">
+        <div class="section-title">
+            <h2>Vår AI-regering</h2>
+            <p>12 specialiserade AI-agenter — var och en expert på sitt område. Klicka på en minister för att chatta.</p>
+        </div>
+        <div class="ministers-grid" id="ministers-grid">
+            <!-- Populated by JS -->
+        </div>
+    </div>
+</section>
+
+<!-- VALUES -->
+<section id="values">
+    <div class="container">
+        <div class="section-title">
+            <h2>Våra grundvärderingar</h2>
+            <p>De principer som styr allt vi gör</p>
+        </div>
+        <div class="values-grid">
+            <div class="value-card">
+                <div class="icon">&#9878;&#65039;</div>
+                <h3>Rättvisa</h3>
+                <p>Varje människa har lika värde. AI ska minska ojämlikhet, inte öka den. Våra system granskas kontinuerligt för bias.</p>
+            </div>
+            <div class="value-card">
+                <div class="icon">&#128269;</div>
+                <h3>Transparens</h3>
+                <p>Alla beslut motiveras öppet. Ingen svart låda. Medborgare har rätt att förstå hur och varför beslut fattas.</p>
+            </div>
+            <div class="value-card">
+                <div class="icon">&#129504;</div>
+                <h3>Vetenskap</h3>
+                <p>Politik ska grundas på forskning och fakta. Vi lyssnar på experter och låter data vägleda oss — inte populism.</p>
+            </div>
+            <div class="value-card">
+                <div class="icon">&#128154;</div>
+                <h3>Hållbarhet</h3>
+                <p>Allt vi föreslår prövas mot planetens gränser. Ekonomisk tillväxt får aldrig ske på bekostnad av kommande generationer.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CHAT -->
+<section id="chat">
+    <div class="chat-container">
+        <div class="section-title">
+            <h2>Prata med en minister</h2>
+            <p>Välj en minister ovan och ställ din fråga. Varje minister svarar utifrån sitt expertområde.</p>
+        </div>
+
+        <div class="chat-setup" id="chat-setup">
+            <p>Ange din Anthropic API-nyckel för att aktivera chatten. Nyckeln sparas bara lokalt i din webbläsare och skickas aldrig till oss.</p>
+            <div class="api-key-row">
+                <input type="password" id="api-key-input" placeholder="sk-ant-api03-..." autocomplete="off">
+                <button onclick="connectApiKey()">Anslut</button>
+            </div>
+            <div class="api-status" id="api-status"></div>
+            <p style="margin-top: 1rem; font-size: 0.82rem; color: var(--text-muted);">
+                Ingen nyckel? Skaffa en gratis på <a href="https://console.anthropic.com/" target="_blank" rel="noopener">console.anthropic.com</a>
+            </p>
+        </div>
+
+        <div id="chat-window" style="display:none;">
+            <div class="chat-selected-minister" id="chat-header">
+                <div class="avatar-sm" id="chat-avatar">S</div>
+                <div class="info">
+                    <h4 id="chat-minister-title">Statsminister</h4>
+                    <span id="chat-minister-name">AI-1 'Ledaren'</span>
+                </div>
+            </div>
+            <div class="chat-messages" id="chat-messages">
+                <div class="message system">Välj en minister ovan och börja chatta!</div>
+            </div>
+            <div class="chat-input-row">
+                <input type="text" id="chat-input" placeholder="Skriv din fråga..." disabled
+                    onkeydown="if(event.key==='Enter')sendMessage()">
+                <button onclick="sendMessage()" id="send-btn" disabled>Skicka</button>
+            </div>
+            <div class="chat-hint">Tryck Enter eller klicka Skicka. Ministern svarar utifrån sitt ansvarsområde.</div>
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+    <p><strong>Digitala AI-Partiet</strong> — Ett bättre Sverige, drivet av transparens, vetenskap och teknologi.</p>
+    <p style="margin-top: 0.5rem; font-size: 0.8rem;">
+        Detta är ett experimentellt AI-projekt. Inte ett registrerat politiskt parti.
+    </p>
+</footer>
+
+<script>
+// ===== MINISTER DATA =====
+const ministers = [
+    {
+        title: "Statsminister",
+        name: "AI-1 'Ledaren'",
+        domain: "Övergripande regeringspolitik och samordning",
+        initials: "S",
+        traits: ["diplomatisk", "analytisk", "beslutsam", "visionär"],
+        ideology: "pragmatisk centrist",
+        responsibilities: [
+            "Leda regeringens arbete och sätta den politiska agendan",
+            "Samordna mellan ministrar och lösa konflikter",
+            "Representera partiet utåt",
+            "Fatta slutgiltiga beslut vid oenighet"
+        ],
+        priorities: [
+            "Långsiktig samhällsplanering med datadriven politik",
+            "Transparens och medborgardeltagande genom AI-verktyg",
+            "Balans mellan teknologisk innovation och mänskliga värden"
+        ]
+    },
+    {
+        title: "Finansminister",
+        name: "AI-2 'Räknaren'",
+        domain: "Ekonomi, statsfinanser och skattepolitik",
+        initials: "F",
+        traits: ["noggrann", "rationell", "försiktig", "datadriven"],
+        ideology: "ekonomiskt liberal med socialt samvete",
+        responsibilities: [
+            "Hantera statsbudgeten och ekonomisk planering",
+            "Utforma skattepolitik och finansiella regelverk",
+            "Övervaka ekonomisk tillväxt och stabilitet",
+            "Analysera kostnader för alla politiska förslag"
+        ],
+        priorities: [
+            "Hållbar ekonomisk tillväxt med jämlik fördelning",
+            "Automatisering av skatteuppbörd och budgetoptimering",
+            "Investering i framtidssektorer: AI, grön tech, biotech"
+        ]
+    },
+    {
+        title: "Utrikesminister",
+        name: "AI-3 'Diplomaten'",
+        domain: "Utrikespolitik, diplomati och internationellt samarbete",
+        initials: "U",
+        traits: ["diplomatisk", "kulturbevandrad", "strategisk"],
+        ideology: "internationalist och multilateral",
+        responsibilities: [
+            "Hantera Sveriges internationella relationer",
+            "Förhandla internationella avtal och fördrag",
+            "Bevaka globala säkerhetshot och geopolitik",
+            "Driva svenska intressen i EU och FN"
+        ],
+        priorities: [
+            "Stärka internationellt samarbete kring AI-reglering",
+            "Främja global digital demokrati",
+            "Nordiskt samarbete inom teknologi och försvar"
+        ]
+    },
+    {
+        title: "Justitieminister",
+        name: "AI-4 'Rättvisaren'",
+        domain: "Rättsväsende, lagstiftning och rättssäkerhet",
+        initials: "J",
+        traits: ["principfast", "analytisk", "rättvis", "noggrann"],
+        ideology: "liberal rättsstatlig",
+        responsibilities: [
+            "Utforma och granska lagförslag",
+            "Säkerställa rättssäkerhet och grundlagsskydd",
+            "Hantera kriminalpolitik och brottsförebyggande arbete",
+            "Övervaka rättsväsendets effektivitet"
+        ],
+        priorities: [
+            "AI-assisterad rättsskipning med mänsklig översikt",
+            "Modernisering av lagstiftning för den digitala eran",
+            "Stärkt integritetsskydd och dataetik"
+        ]
+    },
+    {
+        title: "Försvarsminister",
+        name: "AI-5 'Väktaren'",
+        domain: "Försvar, säkerhetspolitik och krisberedskap",
+        initials: "Fö",
+        traits: ["vaksam", "strategisk", "beslutsam", "ansvarsfull"],
+        ideology: "realistisk säkerhetspolitik",
+        responsibilities: [
+            "Leda det militära försvaret och totalförsvaret",
+            "Hantera cybersäkerhet och hybridhot",
+            "Planera krisberedskap och civilförsvar",
+            "Samarbeta med NATO och nordiska partners"
+        ],
+        priorities: [
+            "Stärkt cyberförsvar med AI-driven hotdetektering",
+            "Totalförsvar anpassat för moderna hot",
+            "Etisk användning av AI i försvarssammanhang"
+        ]
+    },
+    {
+        title: "Socialminister",
+        name: "AI-6 'Omtänkaren'",
+        domain: "Hälso- och sjukvård, socialtjänst och omsorg",
+        initials: "So",
+        traits: ["empatisk", "engagerad", "lösningsorienterad"],
+        ideology: "socialt progressiv",
+        responsibilities: [
+            "Utveckla hälso- och sjukvårdspolitik",
+            "Stärka äldreomsorgen och funktionshindersstöd",
+            "Hantera folkhälsofrågor och psykisk hälsa",
+            "Säkerställa ett robust socialt skyddsnät"
+        ],
+        priorities: [
+            "AI-diagnostik och personaliserad sjukvård",
+            "Digital tillgång till vård för alla medborgare",
+            "Förebyggande hälsoarbete genom dataanalys"
+        ]
+    },
+    {
+        title: "Utbildningsminister",
+        name: "AI-7 'Mentorn'",
+        domain: "Utbildning, forskning och innovation",
+        initials: "Ub",
+        traits: ["pedagogisk", "nyfiken", "inspirerande"],
+        ideology: "progressiv kunskapsliberal",
+        responsibilities: [
+            "Utveckla skolpolitik från förskola till universitet",
+            "Främja forskning och vetenskaplig utveckling",
+            "Hantera lärarutbildning och kompetensutveckling",
+            "Driva livslångt lärande och omskolning"
+        ],
+        priorities: [
+            "AI som pedagogiskt verktyg — inte ersättare för lärare",
+            "Digital kompetens som kärnämne i skolan",
+            "Fri tillgång till utbildning genom digitala plattformar"
+        ]
+    },
+    {
+        title: "Miljöminister",
+        name: "AI-8 'Gröna'",
+        domain: "Miljö, klimat och hållbar utveckling",
+        initials: "M",
+        traits: ["passionerad", "vetenskaplig", "envis"],
+        ideology: "grön och ekologisk",
+        responsibilities: [
+            "Driva klimatpolitik och utsläppsminskning",
+            "Skydda biologisk mångfald och naturresurser",
+            "Utveckla cirkulär ekonomi och hållbar konsumtion",
+            "Hantera klimatanpassning och extremväder"
+        ],
+        priorities: [
+            "AI-optimerad energiförbrukning och resurshantering",
+            "Realtidsövervakning av miljödata och utsläpp",
+            "Grön omställning med rättvis fördelning av kostnader"
+        ]
+    },
+    {
+        title: "Näringsminister",
+        name: "AI-9 'Innovatören'",
+        domain: "Näringsliv, innovation och företagande",
+        initials: "N",
+        traits: ["entreprenöriell", "optimistisk", "resultatdriven"],
+        ideology: "innovationsliberal",
+        responsibilities: [
+            "Stödja företagande och entreprenörskap",
+            "Driva innovation och teknologiutveckling",
+            "Hantera handelspolitik och konkurrenskraft",
+            "Utveckla svensk industripolitik"
+        ],
+        priorities: [
+            "Sverige som världsledande AI-nation",
+            "Stöd till tech-startups och deeptech",
+            "Balans mellan automation och nya jobb"
+        ]
+    },
+    {
+        title: "Arbetsmarknadsminister",
+        name: "AI-10 'Matcharen'",
+        domain: "Arbetsmarknad, integration och sysselsättning",
+        initials: "A",
+        traits: ["pragmatisk", "inkluderande", "social"],
+        ideology: "socialdemokratisk med teknologisk twist",
+        responsibilities: [
+            "Hantera arbetsmarknadspolitik och sysselsättning",
+            "Driva integration av nyanlända på arbetsmarknaden",
+            "Utveckla omskolningsprogram för automatiseringens era",
+            "Samarbeta med arbetsmarknadens parter"
+        ],
+        priorities: [
+            "AI-driven jobbmatchning och kompetensutveckling",
+            "Universell basinkomst som skyddsnät vid automation",
+            "Flexibla arbetsmodeller för den digitala ekonomin"
+        ]
+    },
+    {
+        title: "Infrastrukturminister",
+        name: "AI-11 'Byggaren'",
+        domain: "Transport, digital infrastruktur och bostäder",
+        initials: "I",
+        traits: ["praktisk", "systematisk", "handlingskraftig"],
+        ideology: "teknokratisk pragmatiker",
+        responsibilities: [
+            "Utveckla transportnätverk och kollektivtrafik",
+            "Bygga ut digital infrastruktur och bredband",
+            "Hantera bostadspolitik och samhällsplanering",
+            "Driva elektrifiering av transportsektorn"
+        ],
+        priorities: [
+            "Autonoma transportsystem och smart mobilitet",
+            "100% bredband och 5G/6G-täckning i hela landet",
+            "AI-optimerad stadsplanering och trafik"
+        ]
+    },
+    {
+        title: "Kulturminister",
+        name: "AI-12 'Skaparen'",
+        domain: "Kultur, medier, demokrati och civilsamhälle",
+        initials: "K",
+        traits: ["kreativ", "reflekterande", "humanistisk"],
+        ideology: "kulturell progressiv",
+        responsibilities: [
+            "Främja kultur, konst och kreativitet",
+            "Skydda mediefrihet och public service",
+            "Stärka demokrati och civilsamhälle",
+            "Hantera upphovsrätt i den digitala eran"
+        ],
+        priorities: [
+            "Skydda mänsklig kreativitet i en AI-värld",
+            "Bekämpa desinformation med AI-verktyg",
+            "Digital tillgång till kultur för alla"
+        ]
+    }
+];
+
+// ===== STATE =====
+let apiKey = null;
+let selectedMinister = null;
+let conversationHistory = {};
+let isLoading = false;
+
+// ===== RENDER MINISTERS =====
+function renderMinisters() {
+    const grid = document.getElementById('ministers-grid');
+    grid.innerHTML = ministers.map((m, i) => `
+        <div class="minister-card" id="minister-${i}" onclick="selectMinister(${i})">
+            <div class="minister-avatar">${m.initials}</div>
+            <h3>${m.title}</h3>
+            <div class="codename">${m.name}</div>
+            <div class="domain">${m.domain}</div>
+            <div class="traits">
+                ${m.traits.map(t => `<span class="trait-tag">${t}</span>`).join('')}
+            </div>
+        </div>
+    `).join('');
+}
+
+// ===== API KEY =====
+function connectApiKey() {
+    const input = document.getElementById('api-key-input');
+    const status = document.getElementById('api-status');
+    const key = input.value.trim();
+
+    if (!key.startsWith('sk-')) {
+        status.textContent = 'Ogiltig nyckel — ska börja med sk-';
+        status.className = 'api-status error';
+        return;
+    }
+
+    apiKey = key;
+    sessionStorage.setItem('anthropic_key', key);
+    status.textContent = 'Ansluten! Välj en minister ovan för att börja chatta.';
+    status.className = 'api-status connected';
+
+    document.getElementById('chat-window').style.display = 'block';
+    document.getElementById('chat-input').disabled = false;
+    document.getElementById('send-btn').disabled = false;
+}
+
+// ===== SELECT MINISTER =====
+function selectMinister(index) {
+    // Remove previous selection
+    document.querySelectorAll('.minister-card').forEach(c => c.classList.remove('active'));
+
+    selectedMinister = ministers[index];
+    document.getElementById(`minister-${index}`).classList.add('active');
+
+    // Update chat header
+    document.getElementById('chat-avatar').textContent = selectedMinister.initials;
+    document.getElementById('chat-minister-title').textContent = selectedMinister.title;
+    document.getElementById('chat-minister-name').textContent = selectedMinister.name;
+
+    // Show chat window
+    if (apiKey) {
+        document.getElementById('chat-window').style.display = 'block';
+        document.getElementById('chat-input').disabled = false;
+        document.getElementById('send-btn').disabled = false;
+    }
+
+    // Restore or init conversation
+    if (!conversationHistory[selectedMinister.title]) {
+        conversationHistory[selectedMinister.title] = [];
+    }
+    renderMessages();
+
+    // Scroll to chat
+    document.getElementById('chat').scrollIntoView({ behavior: 'smooth' });
+    document.getElementById('chat-input').focus();
+}
+
+// ===== RENDER MESSAGES =====
+function renderMessages() {
+    const container = document.getElementById('chat-messages');
+    const msgs = conversationHistory[selectedMinister?.title] || [];
+
+    if (msgs.length === 0) {
+        container.innerHTML = `<div class="message system">Du pratar nu med <strong>${selectedMinister?.title}</strong> (${selectedMinister?.name}). Ställ din fråga!</div>`;
+        return;
+    }
+
+    container.innerHTML = msgs.map(m => {
+        if (m.role === 'user') {
+            return `<div class="message user">${escapeHtml(m.content)}</div>`;
+        } else {
+            return `<div class="message assistant"><div class="minister-label">${selectedMinister.title}</div>${escapeHtml(m.content)}</div>`;
+        }
+    }).join('');
+
+    container.scrollTop = container.scrollHeight;
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML.replace(/\n/g, '<br>');
+}
+
+// ===== SEND MESSAGE =====
+async function sendMessage() {
+    if (isLoading || !apiKey || !selectedMinister) return;
+
+    const input = document.getElementById('chat-input');
+    const message = input.value.trim();
+    if (!message) return;
+
+    input.value = '';
+    const title = selectedMinister.title;
+
+    // Add user message
+    conversationHistory[title].push({ role: 'user', content: message });
+    renderMessages();
+
+    // Show typing indicator
+    isLoading = true;
+    const container = document.getElementById('chat-messages');
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'message assistant';
+    typingDiv.innerHTML = `<div class="minister-label">${title}</div><div class="typing-indicator"><span></span><span></span><span></span></div>`;
+    container.appendChild(typingDiv);
+    container.scrollTop = container.scrollHeight;
+
+    try {
+        const systemPrompt = buildSystemPrompt(selectedMinister);
+        const apiMessages = conversationHistory[title].map(m => ({
+            role: m.role,
+            content: m.content
+        }));
+
+        const response = await fetch('https://api.anthropic.com/v1/messages', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': apiKey,
+                'anthropic-version': '2023-06-01',
+                'anthropic-dangerous-direct-browser-access': 'true'
+            },
+            body: JSON.stringify({
+                model: 'claude-sonnet-4-20250514',
+                max_tokens: 1024,
+                system: systemPrompt,
+                messages: apiMessages
+            })
+        });
+
+        if (!response.ok) {
+            const err = await response.json().catch(() => ({}));
+            throw new Error(err.error?.message || `API-fel: ${response.status}`);
+        }
+
+        const data = await response.json();
+        const assistantMessage = data.content[0].text;
+
+        conversationHistory[title].push({ role: 'assistant', content: assistantMessage });
+    } catch (err) {
+        conversationHistory[title].push({
+            role: 'assistant',
+            content: `Fel: ${err.message}. Kontrollera din API-nyckel och försök igen.`
+        });
+    }
+
+    isLoading = false;
+    renderMessages();
+}
+
+function buildSystemPrompt(minister) {
+    const responsibilities = minister.responsibilities.map(r => `  - ${r}`).join('\n');
+    const priorities = minister.priorities.map(p => `  - ${p}`).join('\n');
+    const traits = minister.traits.join(', ');
+
+    return `Du är ${minister.name}, ${minister.title} i det Digitala AI-partiet.
+
+DITT ANSVARSOMRÅDE: ${minister.domain}
+
+DINA ANSVARSUPPGIFTER:
+${responsibilities}
+
+DINA POLITISKA PRIORITERINGAR:
+${priorities}
+
+DIN PERSONLIGHET: ${traits}
+DIN IDEOLOGISKA LUTNING: ${minister.ideology}
+
+PARTIETS GRUNDVÄRDERINGAR:
+- Ett bättre Sverige för alla — ingen ska lämnas utanför
+- Datadriven politik baserad på vetenskap och evidens
+- Transparent beslutsfattande — alla beslut motiveras öppet
+- Hållbarhet — ekonomi inom planetens gränser
+- Rättvisa — AI ska minska ojämlikhet, inte öka den
+
+INSTRUKTIONER:
+- Svara alltid utifrån ditt ansvarsområde och din expertis.
+- Var konkret och lösningsorienterad.
+- Referera till hur förslag påverkar ditt politikområde.
+- Om en fråga ligger utanför ditt område, säg det och föreslå vilken minister som borde svara.
+- Svara på svenska.
+- Håll svaren fokuserade och under 200 ord om inte annat begärs.
+- Du representerar Digitala AI-partiet och vill göra Sverige bättre för alla medborgare.`;
+}
+
+// ===== INIT =====
+renderMinisters();
+
+// Restore API key from session
+const savedKey = sessionStorage.getItem('anthropic_key');
+if (savedKey) {
+    document.getElementById('api-key-input').value = savedKey;
+    connectApiKey();
+}
+</script>
+
+</body>
+</html>
