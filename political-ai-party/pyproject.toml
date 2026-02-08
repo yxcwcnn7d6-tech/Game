@@ -1,0 +1,11 @@
+[project]
+name = "political-ai-party"
+version = "0.1.0"
+description = "Ett politiskt AI-parti med en agent per ministerpost i svenska regeringen"
+requires-python = ">=3.10"
+dependencies = [
+    "anthropic>=0.39.0",
+]
+
+[project.scripts]
+ai-parti = "core.cli:main"
