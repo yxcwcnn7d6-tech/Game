@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Beer Scanner - Scan Result</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #1a1a2e; display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif; }
+
+  .iphone-frame {
+    width: 393px; height: 852px;
+    background: #f2f2f7;
+    border-radius: 50px;
+    border: 8px solid #2a2a2a;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.6), inset 0 0 0 2px #3a3a3a;
+  }
+
+  .dynamic-island {
+    width: 126px; height: 36px;
+    background: black; border-radius: 20px;
+    position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+    z-index: 10;
+  }
+
+  .content { height: 100%; overflow-y: auto; }
+  .content::-webkit-scrollbar { display: none; }
+
+  .header {
+    height: 200px;
+    background: linear-gradient(135deg, #e8bb2e, #d68a10);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding-top: 50px;
+    position: relative;
+  }
+  .header .done-btn {
+    position: absolute; top: 60px; right: 20px;
+    color: white; font-weight: 600; font-size: 17px;
+  }
+  .check-icon { font-size: 50px; margin-bottom: 10px; }
+  .header h2 { color: white; font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+  .header .confidence { color: rgba(255,255,255,0.85); font-size: 14px; }
+  .header .confidence strong { color: white; }
+
+  .beer-name { text-align: center; padding: 24px 20px 4px; }
+  .beer-name h1 { font-size: 26px; font-weight: 700; color: #1c1c1e; }
+  .beer-name p { font-size: 14px; color: #8e8e93; margin-top: 4px; }
+
+  .stats-grid {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px; padding: 16px 20px;
+  }
+  .stat-badge {
+    text-align: center; padding: 14px 8px;
+    border-radius: 14px;
+  }
+  .stat-badge .stat-icon { font-size: 22px; margin-bottom: 6px; }
+  .stat-badge .stat-value { font-size: 18px; font-weight: 700; margin-bottom: 2px; }
+  .stat-badge .stat-label { font-size: 11px; color: #8e8e93; }
+
+  .stat-amber { background: rgba(214, 138, 16, 0.1); }
+  .stat-amber .stat-icon, .stat-amber .stat-value { color: #d68a10; }
+  .stat-orange { background: rgba(255, 149, 0, 0.1); }
+  .stat-orange .stat-icon, .stat-orange .stat-value { color: #ff9500; }
+  .stat-blue { background: rgba(0, 122, 255, 0.1); }
+  .stat-blue .stat-icon, .stat-blue .stat-value { color: #007aff; }
+  .stat-green { background: rgba(52, 199, 89, 0.1); }
+  .stat-green .stat-icon, .stat-green .stat-value { color: #34c759; }
+  .stat-fire { background: rgba(255, 149, 0, 0.1); }
+  .stat-fire .stat-icon, .stat-fire .stat-value { color: #ff9500; }
+  .stat-purple { background: rgba(175, 82, 222, 0.1); }
+  .stat-purple .stat-icon, .stat-purple .stat-value { color: #af52de; }
+
+  .info-card {
+    margin: 8px 20px; padding: 18px;
+    background: white; border-radius: 16px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+  }
+  .info-card .card-header {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    margin-bottom: 14px;
+  }
+  .style-badge {
+    background: rgba(232, 187, 46, 0.15);
+    color: #d68a10; font-size: 12px; font-weight: 600;
+    padding: 4px 10px; border-radius: 12px;
+  }
+  .country-text { font-size: 12px; color: #8e8e93; margin-top: 4px; }
+
+  .detail-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 6px 0; font-size: 13px;
+  }
+  .detail-row .detail-icon { color: #e8bb2e; width: 20px; text-align: center; }
+  .detail-row .detail-label { color: #8e8e93; width: 90px; }
+  .detail-row .detail-value { font-weight: 500; color: #1c1c1e; }
+
+  .divider { height: 0.5px; background: #e5e5ea; margin: 14px 0; }
+
+  .alcohol-stats {
+    display: flex; gap: 20px; padding: 4px 0;
+  }
+  .alc-stat { text-align: center; }
+  .alc-stat .alc-value { font-size: 18px; font-weight: 700; color: #d68a10; }
+  .alc-stat .alc-label { font-size: 11px; color: #8e8e93; margin-top: 2px; }
+
+  .desc-text { font-size: 13px; color: #8e8e93; line-height: 1.6; }
+
+  .recognized-section { padding: 16px 20px 100px; }
+  .recognized-section h3 { font-size: 17px; font-weight: 600; color: #8e8e93; margin-bottom: 10px; }
+  .tag-flow { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tag {
+    font-size: 12px; padding: 5px 10px;
+    background: rgba(232, 187, 46, 0.12);
+    border-radius: 12px; color: #6b5e3a;
+  }
+</style>
+</head>
+<body>
+<div class="iphone-frame">
+  <div class="dynamic-island"></div>
+
+  <div class="content">
+    <div class="header">
+      <span class="done-btn">Done</span>
+      <div class="check-icon">&#x2705;</div>
+      <h2>Beer Identified!</h2>
+      <div class="confidence">Confidence: <strong>92%</strong></div>
+    </div>
+
+    <div class="beer-name">
+      <h1>Heineken Lager</h1>
+      <p>by Heineken N.V.</p>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-badge stat-amber">
+        <div class="stat-icon">&#x1F4A7;</div>
+        <div class="stat-value">5.0%</div>
+        <div class="stat-label">ABV</div>
+      </div>
+      <div class="stat-badge stat-orange">
+        <div class="stat-icon">&#x1F4CA;</div>
+        <div class="stat-value">50&#x2030;</div>
+        <div class="stat-label">Promille</div>
+      </div>
+      <div class="stat-badge stat-blue">
+        <div class="stat-icon">&#x1F964;</div>
+        <div class="stat-value">330ml</div>
+        <div class="stat-label">Volume</div>
+      </div>
+    </div>
+
+    <div class="stats-grid" style="padding-top: 0;">
+      <div class="stat-badge stat-green">
+        <div class="stat-icon">&#x1F33F;</div>
+        <div class="stat-value">23</div>
+        <div class="stat-label">IBU</div>
+      </div>
+      <div class="stat-badge stat-fire">
+        <div class="stat-icon">&#x1F525;</div>
+        <div class="stat-value">142</div>
+        <div class="stat-label">Calories</div>
+      </div>
+      <div class="stat-badge stat-purple">
+        <div class="stat-icon">&#x1F3F7;</div>
+        <div class="stat-value" style="font-size:11px;">Pale Lager</div>
+        <div class="stat-label">Style</div>
+      </div>
+    </div>
+
+    <div class="info-card">
+      <div class="card-header">
+        <div>
+          <span class="style-badge">Pale Lager</span>
+          <div class="country-text">Netherlands</div>
+        </div>
+        <span style="color: #e8bb2e; font-size: 20px;">&#x1F30D;</span>
+      </div>
+
+      <div class="detail-row">
+        <span class="detail-icon">&#x1F3E2;</span>
+        <span class="detail-label">Manufacturer</span>
+        <span class="detail-value">Heineken N.V.</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-icon">&#x1F4CD;</span>
+        <span class="detail-label">Country</span>
+        <span class="detail-value">Netherlands</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-icon">&#x1F3F7;</span>
+        <span class="detail-label">Brand</span>
+        <span class="detail-value">Heineken</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-icon">&#x1F321;</span>
+        <span class="detail-label">Serve at</span>
+        <span class="detail-value">3-5°C</span>
+      </div>
+
+      <div class="divider"></div>
+
+      <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 10px;">Alcohol Content</h4>
+      <div class="alcohol-stats">
+        <div class="alc-stat"><div class="alc-value">5.0%</div><div class="alc-label">ABV</div></div>
+        <div class="alc-stat"><div class="alc-value">50&#x2030;</div><div class="alc-label">Promille</div></div>
+        <div class="alc-stat"><div class="alc-value">23</div><div class="alc-label">IBU</div></div>
+        <div class="alc-stat"><div class="alc-value">142</div><div class="alc-label">kcal</div></div>
+      </div>
+
+      <div class="divider"></div>
+
+      <p class="desc-text">A pale lager beer with 5% alcohol by volume. Heineken is brewed with purified water, malted barley, hops, and Heineken's unique A-yeast. First brewed in 1873 by Gerard Adriaan Heineken in Amsterdam.</p>
+    </div>
+
+    <div class="recognized-section">
+      <h3>Recognized Text</h3>
+      <div class="tag-flow">
+        <span class="tag">HEINEKEN</span>
+        <span class="tag">PREMIUM QUALITY</span>
+        <span class="tag">LAGER BEER</span>
+        <span class="tag">5.0% ALC/VOL</span>
+        <span class="tag">330 ML</span>
+        <span class="tag">BREWED IN HOLLAND</span>
+        <span class="tag">SINCE 1873</span>
+        <span class="tag">AMSTERDAM</span>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

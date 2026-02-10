@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Beer Scanner - Beer Detail</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #1a1a2e; display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif; }
+
+  .iphone-frame {
+    width: 393px; height: 852px;
+    background: #f2f2f7;
+    border-radius: 50px;
+    border: 8px solid #2a2a2a;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.6), inset 0 0 0 2px #3a3a3a;
+  }
+
+  .dynamic-island {
+    width: 126px; height: 36px;
+    background: black; border-radius: 20px;
+    position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+    z-index: 10;
+  }
+
+  .content { height: 100%; overflow-y: auto; }
+  .content::-webkit-scrollbar { display: none; }
+
+  .header {
+    height: 220px;
+    background: linear-gradient(135deg, #e8bb2e, #d68a10);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: flex-end;
+    padding-bottom: 24px;
+    position: relative;
+  }
+  .back-btn {
+    position: absolute; top: 58px; left: 16px;
+    color: white; font-size: 28px;
+  }
+  .brand-circle {
+    width: 90px; height: 90px; border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 12px;
+  }
+  .brand-circle span { font-size: 36px; font-weight: 900; color: white; }
+  .header h1 { color: white; font-size: 22px; font-weight: 700; text-align: center; }
+  .header p { color: rgba(255,255,255,0.8); font-size: 14px; margin-top: 4px; }
+
+  .quick-stats {
+    display: flex; margin: 16px 20px;
+    background: white; border-radius: 16px; padding: 16px 0;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+  }
+  .qs-item {
+    flex: 1; text-align: center;
+    border-right: 0.5px solid #e5e5ea;
+  }
+  .qs-item:last-child { border-right: none; }
+  .qs-value { font-size: 13px; font-weight: 700; color: #1c1c1e; }
+  .qs-label { font-size: 10px; color: #8e8e93; margin-top: 2px; }
+
+  .section { margin: 16px 20px; }
+  .section-header {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 12px;
+  }
+  .section-header .s-icon { color: #e8bb2e; font-size: 18px; }
+  .section-header h3 { font-size: 17px; font-weight: 600; }
+
+  .card {
+    background: white; border-radius: 16px; padding: 16px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+  }
+
+  .info-row {
+    display: flex; justify-content: space-between;
+    padding: 8px 0; font-size: 14px;
+  }
+  .info-row .label { color: #8e8e93; }
+  .info-row .value { font-weight: 500; color: #1c1c1e; }
+
+  .warning-box {
+    display: flex; gap: 10px; align-items: flex-start;
+    padding: 14px; border-radius: 12px;
+    background: rgba(255, 149, 0, 0.1);
+    margin-top: 12px;
+  }
+  .warning-box .w-icon { color: #ff9500; font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+  .warning-box p { font-size: 12px; color: #8e8e93; line-height: 1.5; }
+
+  .flavor-bar { margin-bottom: 14px; }
+  .flavor-bar:last-child { margin-bottom: 0; }
+  .flavor-header { display: flex; justify-content: space-between; margin-bottom: 6px; }
+  .flavor-header span:first-child { font-size: 14px; }
+  .flavor-header span:last-child { font-size: 12px; color: #8e8e93; }
+  .bar-bg {
+    height: 8px; border-radius: 4px;
+    background: #f0f0f0; overflow: hidden;
+  }
+  .bar-fill { height: 100%; border-radius: 4px; }
+
+  .ingredient-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+  .ingredient {
+    font-size: 14px; padding: 8px 14px;
+    background: rgba(232, 187, 46, 0.12);
+    border-radius: 20px; color: #5a4e32;
+  }
+
+  .pairing-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 0; font-size: 14px;
+  }
+  .pairing-dot { width: 6px; height: 6px; border-radius: 50%; background: #e8bb2e; }
+
+  .bottom-spacer { height: 60px; }
+</style>
+</head>
+<body>
+<div class="iphone-frame">
+  <div class="dynamic-island"></div>
+
+  <div class="content">
+    <div class="header">
+      <span class="back-btn">&#x2039;</span>
+      <div class="brand-circle"><span>GU</span></div>
+      <h1>Guinness Draught</h1>
+      <p>Diageo (Arthur Guinness Son & Co.)</p>
+    </div>
+
+    <div class="quick-stats">
+      <div class="qs-item">
+        <div class="qs-value">4.2%</div>
+        <div class="qs-label">ABV</div>
+      </div>
+      <div class="qs-item">
+        <div class="qs-value">42&#x2030;</div>
+        <div class="qs-label">Promille</div>
+      </div>
+      <div class="qs-item">
+        <div class="qs-value">Irish Dry Stout</div>
+        <div class="qs-label">Style</div>
+      </div>
+      <div class="qs-item">
+        <div class="qs-value">Ireland</div>
+        <div class="qs-label">Origin</div>
+      </div>
+    </div>
+
+    <!-- Alcohol Information -->
+    <div class="section">
+      <div class="section-header">
+        <span class="s-icon">&#x1F4A7;</span>
+        <h3>Alcohol Information</h3>
+      </div>
+      <div class="card">
+        <div class="info-row"><span class="label">Alcohol by Volume (ABV)</span><span class="value">4.2%</span></div>
+        <div class="info-row"><span class="label">Alcohol Content (Promille)</span><span class="value">42&#x2030;</span></div>
+        <div class="info-row"><span class="label">Est. BAC per Serving</span><span class="value">0.306&#x2030;</span></div>
+        <div class="info-row"><span class="label">Volume</span><span class="value">440ml</span></div>
+        <div class="info-row"><span class="label">Calories per Serving</span><span class="value">125 kcal</span></div>
+      </div>
+      <div class="warning-box">
+        <span class="w-icon">&#x26A0;</span>
+        <p>BAC estimates are approximate. Actual values depend on body weight, sex, food intake, and metabolism. Never drink and drive.</p>
+      </div>
+    </div>
+
+    <!-- Manufacturer -->
+    <div class="section">
+      <div class="section-header">
+        <span class="s-icon">&#x1F3E2;</span>
+        <h3>Manufacturer</h3>
+      </div>
+      <div class="card">
+        <div class="info-row"><span class="label">Brand</span><span class="value">Guinness</span></div>
+        <div class="info-row"><span class="label">Manufacturer</span><span class="value">Diageo</span></div>
+        <div class="info-row"><span class="label">Country of Origin</span><span class="value">Ireland</span></div>
+        <div class="info-row"><span class="label">Beer Style</span><span class="value">Irish Dry Stout</span></div>
+        <div class="info-row"><span class="label">Bitterness (IBU)</span><span class="value">45</span></div>
+        <div class="info-row"><span class="label">Serving Temperature</span><span class="value">6-8°C</span></div>
+      </div>
+    </div>
+
+    <!-- About -->
+    <div class="section">
+      <div class="section-header">
+        <span class="s-icon">&#x2139;</span>
+        <h3>About This Beer</h3>
+      </div>
+      <div class="card">
+        <p style="font-size: 14px; color: #8e8e93; line-height: 1.7;">A dark Irish dry stout that originated in the brewery of Arthur Guinness at St. James's Gate, Dublin, Ireland, in 1759. It's known for its distinctive dark color and creamy head created by nitrogen carbonation.</p>
+      </div>
+    </div>
+
+    <!-- Flavor Profile -->
+    <div class="section">
+      <div class="section-header">
+        <span class="s-icon">&#x1F4CA;</span>
+        <h3>Flavor Profile</h3>
+      </div>
+      <div class="card">
+        <div class="flavor-bar">
+          <div class="flavor-header"><span>Sweetness</span><span>2/5</span></div>
+          <div class="bar-bg"><div class="bar-fill" style="width:40%; background: #ff6b8a;"></div></div>
+        </div>
+        <div class="flavor-bar">
+          <div class="flavor-header"><span>Bitterness</span><span>4/5</span></div>
+          <div class="bar-bg"><div class="bar-fill" style="width:80%; background: #34c759;"></div></div>
+        </div>
+        <div class="flavor-bar">
+          <div class="flavor-header"><span>Body</span><span>4/5</span></div>
+          <div class="bar-bg"><div class="bar-fill" style="width:80%; background: #d68a10;"></div></div>
+        </div>
+        <div class="flavor-bar">
+          <div class="flavor-header"><span>Hoppy</span><span>2/5</span></div>
+          <div class="bar-bg"><div class="bar-fill" style="width:40%; background: #30d5c8;"></div></div>
+        </div>
+        <div class="flavor-bar">
+          <div class="flavor-header"><span>Malty</span><span>4/5</span></div>
+          <div class="bar-bg"><div class="bar-fill" style="width:80%; background: #8b6914;"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ingredients -->
+    <div class="section">
+      <div class="section-header">
+        <span class="s-icon">&#x1F33F;</span>
+        <h3>Ingredients</h3>
+      </div>
+      <div class="card">
+        <div class="ingredient-tags">
+          <span class="ingredient">Water</span>
+          <span class="ingredient">Barley</span>
+          <span class="ingredient">Roast Malt Extract</span>
+          <span class="ingredient">Hops</span>
+          <span class="ingredient">Brewer's Yeast</span>
+          <span class="ingredient">Nitrogen</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Food Pairings -->
+    <div class="section">
+      <div class="section-header">
+        <span class="s-icon">&#x1F374;</span>
+        <h3>Food Pairings</h3>
+      </div>
+      <div class="card">
+        <div class="pairing-item"><div class="pairing-dot"></div> Oysters</div>
+        <div class="pairing-item"><div class="pairing-dot"></div> Beef stew</div>
+        <div class="pairing-item"><div class="pairing-dot"></div> Chocolate desserts</div>
+        <div class="pairing-item"><div class="pairing-dot"></div> Aged cheddar</div>
+      </div>
+    </div>
+
+    <div class="bottom-spacer"></div>
+  </div>
+</div>
+</body>
+</html>

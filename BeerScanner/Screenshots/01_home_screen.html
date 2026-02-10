@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Beer Scanner - Home Screen</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #1a1a2e; display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif; }
+
+  .iphone-frame {
+    width: 393px; height: 852px;
+    background: #1e1a14;
+    border-radius: 50px;
+    border: 8px solid #2a2a2a;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.6), inset 0 0 0 2px #3a3a3a;
+  }
+
+  .status-bar {
+    height: 54px; padding: 14px 30px 0;
+    display: flex; justify-content: space-between; align-items: center;
+    color: white; font-size: 15px; font-weight: 600;
+  }
+  .status-icons { display: flex; gap: 6px; align-items: center; }
+  .status-icons svg { width: 18px; height: 18px; fill: white; }
+
+  .dynamic-island {
+    width: 126px; height: 36px;
+    background: black; border-radius: 20px;
+    position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+    z-index: 10;
+  }
+
+  .content {
+    height: calc(100% - 54px - 83px);
+    overflow-y: auto; padding: 10px 0;
+    background: linear-gradient(180deg, #1e1a14 0%, #2d2215 100%);
+  }
+  .content::-webkit-scrollbar { display: none; }
+
+  .hero { text-align: center; padding: 20px 20px 30px; }
+  .hero-circle-outer {
+    width: 140px; height: 140px; border-radius: 50%;
+    background: rgba(232, 187, 46, 0.15);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 20px;
+  }
+  .hero-circle-inner {
+    width: 110px; height: 110px; border-radius: 50%;
+    background: rgba(232, 187, 46, 0.25);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .hero-icon { font-size: 50px; color: #e8bb2e; }
+  .hero h1 { color: white; font-size: 32px; font-weight: 700; margin-bottom: 8px; }
+  .hero p { color: rgba(255,255,255,0.6); font-size: 15px; line-height: 1.5; }
+
+  .scan-buttons { padding: 0 20px; }
+  .btn-primary {
+    display: flex; align-items: center; gap: 14px;
+    padding: 18px 20px; border-radius: 16px;
+    background: linear-gradient(135deg, #e8bb2e, #d68a10);
+    color: white; margin-bottom: 12px; text-decoration: none;
+  }
+  .btn-primary .btn-icon { font-size: 28px; }
+  .btn-primary .btn-text h3 { font-size: 17px; font-weight: 600; margin-bottom: 2px; }
+  .btn-primary .btn-text p { font-size: 13px; opacity: 0.85; }
+  .btn-primary .btn-arrow { margin-left: auto; font-size: 20px; opacity: 0.7; }
+
+  .btn-secondary {
+    display: flex; align-items: center; gap: 14px;
+    padding: 18px 20px; border-radius: 16px;
+    background: rgba(255,255,255,0.12);
+    color: white; margin-bottom: 20px; text-decoration: none;
+  }
+  .btn-secondary .btn-icon { font-size: 28px; }
+  .btn-secondary .btn-text h3 { font-size: 17px; font-weight: 600; margin-bottom: 2px; }
+  .btn-secondary .btn-text p { font-size: 13px; opacity: 0.7; }
+  .btn-secondary .btn-arrow { margin-left: auto; font-size: 20px; opacity: 0.5; }
+
+  .tips {
+    margin: 0 20px; padding: 18px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 16px;
+  }
+  .tips h3 { color: white; font-size: 17px; font-weight: 600; margin-bottom: 14px; }
+  .tip-row {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 12px; color: rgba(255,255,255,0.6); font-size: 14px;
+  }
+  .tip-row:last-child { margin-bottom: 0; }
+  .tip-icon { color: #e8bb2e; font-size: 16px; width: 24px; text-align: center; }
+
+  .tab-bar {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    height: 83px; padding: 8px 0 28px;
+    background: rgba(30, 26, 20, 0.95);
+    backdrop-filter: blur(20px);
+    border-top: 0.5px solid rgba(255,255,255,0.15);
+    display: flex; justify-content: space-around; align-items: flex-start;
+  }
+  .tab-item {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    color: rgba(255,255,255,0.4); font-size: 10px; font-weight: 500;
+  }
+  .tab-item.active { color: #e8bb2e; }
+  .tab-item .tab-icon { font-size: 24px; }
+</style>
+</head>
+<body>
+<div class="iphone-frame">
+  <div class="dynamic-island"></div>
+  <div class="status-bar">
+    <span>9:41</span>
+    <div class="status-icons">
+      <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M2 22h20V2z M12 12V2.1C6.5 2.5 2 7.1 2 12.7V22h8v-7H7v-3h5z" fill="none"/><rect x="2" y="6" width="3" height="16" rx="1"/><rect x="6" y="10" width="3" height="12" rx="1"/><rect x="10" y="4" width="3" height="18" rx="1"/><rect x="14" y="8" width="3" height="14" rx="1"/></svg>
+      <svg viewBox="0 0 24 24"><rect x="2" y="6" width="18" height="12" rx="2" stroke="white" stroke-width="2" fill="none"/><rect x="4" y="8" width="10" height="8" rx="1" fill="white"/><rect x="21" y="10" width="2" height="4" rx="0.5" fill="white"/></svg>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="hero">
+      <div class="hero-circle-outer">
+        <div class="hero-circle-inner">
+          <span class="hero-icon">&#x1F4F7;</span>
+        </div>
+      </div>
+      <h1>Beer Scanner</h1>
+      <p>Point your camera at any beer can<br>to discover everything about it</p>
+    </div>
+
+    <div class="scan-buttons">
+      <div class="btn-primary">
+        <span class="btn-icon">&#x1F4F8;</span>
+        <div class="btn-text">
+          <h3>Take Photo</h3>
+          <p>Use camera to scan a beer</p>
+        </div>
+        <span class="btn-arrow">&#x203A;</span>
+      </div>
+
+      <div class="btn-secondary">
+        <span class="btn-icon">&#x1F5BC;</span>
+        <div class="btn-text">
+          <h3>Choose from Library</h3>
+          <p>Select an existing photo</p>
+        </div>
+        <span class="btn-arrow">&#x203A;</span>
+      </div>
+    </div>
+
+    <div class="tips">
+      <h3>Tips for best results</h3>
+      <div class="tip-row"><span class="tip-icon">&#x2600;</span> Ensure good lighting on the label</div>
+      <div class="tip-row"><span class="tip-icon">&#x1F50D;</span> Fill the frame with the beer can</div>
+      <div class="tip-row"><span class="tip-icon">&#x1F524;</span> Make sure the brand name is visible</div>
+      <div class="tip-row"><span class="tip-icon">&#x270B;</span> Hold steady to avoid blur</div>
+    </div>
+  </div>
+
+  <div class="tab-bar">
+    <div class="tab-item active">
+      <span class="tab-icon">&#x1F4F7;</span>
+      <span>Scan</span>
+    </div>
+    <div class="tab-item">
+      <span class="tab-icon">&#x1F37A;</span>
+      <span>Beers</span>
+    </div>
+    <div class="tab-item">
+      <span class="tab-icon">&#x1F553;</span>
+      <span>History</span>
+    </div>
+  </div>
+</div>
+</body>
+</html>

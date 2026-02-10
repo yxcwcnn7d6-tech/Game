@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Beer Scanner - Scan History</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #1a1a2e; display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif; }
+
+  .iphone-frame {
+    width: 393px; height: 852px;
+    background: #f2f2f7;
+    border-radius: 50px;
+    border: 8px solid #2a2a2a;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.6), inset 0 0 0 2px #3a3a3a;
+  }
+
+  .dynamic-island {
+    width: 126px; height: 36px;
+    background: black; border-radius: 20px;
+    position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+    z-index: 10;
+  }
+
+  .status-bar {
+    height: 54px; padding: 14px 30px 0;
+    display: flex; justify-content: space-between; align-items: center;
+    color: black; font-size: 15px; font-weight: 600;
+    background: #f2f2f7;
+  }
+
+  .nav-header {
+    padding: 10px 20px 16px;
+    background: #f2f2f7;
+    display: flex; justify-content: space-between; align-items: baseline;
+  }
+  .nav-header h1 { font-size: 34px; font-weight: 700; color: #1c1c1e; }
+  .clear-btn { color: #ff3b30; font-size: 16px; font-weight: 400; }
+
+  .history-list {
+    height: calc(100% - 54px - 66px - 83px);
+    overflow-y: auto;
+    background: white;
+  }
+  .history-list::-webkit-scrollbar { display: none; }
+
+  .history-row {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 20px;
+    border-bottom: 0.5px solid #e5e5ea;
+  }
+
+  .brand-icon {
+    width: 50px; height: 50px; border-radius: 12px;
+    background: linear-gradient(135deg, #e8bb2e, #d68a10);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .brand-icon span { font-size: 18px; font-weight: 700; color: white; }
+
+  .scan-info { flex: 1; min-width: 0; }
+  .scan-info h3 { font-size: 16px; font-weight: 600; color: #1c1c1e; margin-bottom: 4px; }
+  .scan-meta { display: flex; gap: 8px; font-size: 13px; margin-bottom: 4px; }
+  .scan-meta .style { color: #8e8e93; }
+  .scan-meta .confidence { color: #e8bb2e; font-weight: 500; }
+  .scan-date { font-size: 11px; color: #c7c7cc; }
+
+  .scan-abv { text-align: right; flex-shrink: 0; }
+  .scan-abv .abv-value { font-size: 16px; font-weight: 700; color: #d68a10; }
+
+  .chevron { color: #c7c7cc; font-size: 18px; margin-left: 4px; }
+
+  .tab-bar {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    height: 83px; padding: 8px 0 28px;
+    background: rgba(249, 249, 249, 0.94);
+    backdrop-filter: blur(20px);
+    border-top: 0.5px solid #c6c6c8;
+    display: flex; justify-content: space-around; align-items: flex-start;
+  }
+  .tab-item {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    color: #8e8e93; font-size: 10px; font-weight: 500;
+  }
+  .tab-item.active { color: #e8bb2e; }
+  .tab-item .tab-icon { font-size: 24px; }
+</style>
+</head>
+<body>
+<div class="iphone-frame">
+  <div class="dynamic-island"></div>
+  <div class="status-bar">
+    <span>9:41</span>
+    <span></span>
+  </div>
+
+  <div class="nav-header">
+    <h1>Scan History</h1>
+    <span class="clear-btn">Clear All</span>
+  </div>
+
+  <div class="history-list">
+    <div class="history-row">
+      <div class="brand-icon"><span>HE</span></div>
+      <div class="scan-info">
+        <h3>Heineken Lager</h3>
+        <div class="scan-meta">
+          <span class="style">Pale Lager</span>
+          <span class="confidence">92% match</span>
+        </div>
+        <div class="scan-date">Feb 10, 2026, 2:34 PM</div>
+      </div>
+      <div class="scan-abv"><div class="abv-value">5.0%</div></div>
+      <span class="chevron">&#x203A;</span>
+    </div>
+
+    <div class="history-row">
+      <div class="brand-icon"><span>GU</span></div>
+      <div class="scan-info">
+        <h3>Guinness Draught</h3>
+        <div class="scan-meta">
+          <span class="style">Irish Dry Stout</span>
+          <span class="confidence">88% match</span>
+        </div>
+        <div class="scan-date">Feb 10, 2026, 1:15 PM</div>
+      </div>
+      <div class="scan-abv"><div class="abv-value">4.2%</div></div>
+      <span class="chevron">&#x203A;</span>
+    </div>
+
+    <div class="history-row">
+      <div class="brand-icon"><span>DU</span></div>
+      <div class="scan-info">
+        <h3>Duvel</h3>
+        <div class="scan-meta">
+          <span class="style">Belgian Strong Golden Ale</span>
+          <span class="confidence">95% match</span>
+        </div>
+        <div class="scan-date">Feb 9, 2026, 7:42 PM</div>
+      </div>
+      <div class="scan-abv"><div class="abv-value">8.5%</div></div>
+      <span class="chevron">&#x203A;</span>
+    </div>
+
+    <div class="history-row">
+      <div class="brand-icon"><span>SA</span></div>
+      <div class="scan-info">
+        <h3>Sapporo Premium Beer</h3>
+        <div class="scan-meta">
+          <span class="style">Japanese Rice Lager</span>
+          <span class="confidence">85% match</span>
+        </div>
+        <div class="scan-date">Feb 9, 2026, 6:30 PM</div>
+      </div>
+      <div class="scan-abv"><div class="abv-value">4.9%</div></div>
+      <span class="chevron">&#x203A;</span>
+    </div>
+
+    <div class="history-row">
+      <div class="brand-icon"><span>CH</span></div>
+      <div class="scan-info">
+        <h3>Chimay Blue</h3>
+        <div class="scan-meta">
+          <span class="style">Belgian Strong Dark Ale</span>
+          <span class="confidence">91% match</span>
+        </div>
+        <div class="scan-date">Feb 8, 2026, 9:11 PM</div>
+      </div>
+      <div class="scan-abv"><div class="abv-value">9.0%</div></div>
+      <span class="chevron">&#x203A;</span>
+    </div>
+
+    <div class="history-row">
+      <div class="brand-icon"><span>ST</span></div>
+      <div class="scan-info">
+        <h3>Stella Artois</h3>
+        <div class="scan-meta">
+          <span class="style">Belgian Pilsner</span>
+          <span class="confidence">90% match</span>
+        </div>
+        <div class="scan-date">Feb 8, 2026, 4:55 PM</div>
+      </div>
+      <div class="scan-abv"><div class="abv-value">5.2%</div></div>
+      <span class="chevron">&#x203A;</span>
+    </div>
+
+    <div class="history-row">
+      <div class="brand-icon"><span>ER</span></div>
+      <div class="scan-info">
+        <h3>Erdinger Weissbier</h3>
+        <div class="scan-meta">
+          <span class="style">Hefeweizen</span>
+          <span class="confidence">87% match</span>
+        </div>
+        <div class="scan-date">Feb 7, 2026, 8:20 PM</div>
+      </div>
+      <div class="scan-abv"><div class="abv-value">5.3%</div></div>
+      <span class="chevron">&#x203A;</span>
+    </div>
+  </div>
+
+  <div class="tab-bar">
+    <div class="tab-item">
+      <span class="tab-icon">&#x1F4F7;</span>
+      <span>Scan</span>
+    </div>
+    <div class="tab-item">
+      <span class="tab-icon">&#x1F37A;</span>
+      <span>Beers</span>
+    </div>
+    <div class="tab-item active">
+      <span class="tab-icon">&#x1F553;</span>
+      <span>History</span>
+    </div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Beer Scanner - Beer Database</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #1a1a2e; display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif; }
+
+  .iphone-frame {
+    width: 393px; height: 852px;
+    background: #f2f2f7;
+    border-radius: 50px;
+    border: 8px solid #2a2a2a;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.6), inset 0 0 0 2px #3a3a3a;
+  }
+
+  .dynamic-island {
+    width: 126px; height: 36px;
+    background: black; border-radius: 20px;
+    position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+    z-index: 10;
+  }
+
+  .status-bar {
+    height: 54px; padding: 14px 30px 0;
+    display: flex; justify-content: space-between; align-items: center;
+    color: black; font-size: 15px; font-weight: 600;
+    background: #f2f2f7;
+  }
+  .status-icons { display: flex; gap: 6px; align-items: center; }
+  .status-icons svg { width: 18px; height: 18px; fill: black; }
+
+  .nav-header {
+    padding: 10px 20px 8px;
+    background: #f2f2f7;
+  }
+  .nav-header h1 { font-size: 34px; font-weight: 700; color: #1c1c1e; }
+
+  .search-bar {
+    margin: 0 20px 10px; padding: 10px 14px;
+    background: rgba(118, 118, 128, 0.12);
+    border-radius: 12px; display: flex;
+    align-items: center; gap: 8px;
+  }
+  .search-bar .search-icon { color: #8e8e93; font-size: 16px; }
+  .search-bar input {
+    border: none; background: none; outline: none;
+    font-size: 16px; color: #8e8e93; width: 100%;
+    font-family: inherit;
+  }
+
+  .beer-list {
+    height: calc(100% - 54px - 58px - 50px - 83px);
+    overflow-y: auto;
+    background: white;
+  }
+  .beer-list::-webkit-scrollbar { display: none; }
+
+  .beer-row {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 20px;
+    border-bottom: 0.5px solid #e5e5ea;
+  }
+
+  .brand-icon {
+    width: 50px; height: 50px; border-radius: 12px;
+    background: linear-gradient(135deg, #e8bb2e, #d68a10);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .brand-icon span { font-size: 18px; font-weight: 700; color: white; }
+
+  .beer-info { flex: 1; min-width: 0; }
+  .beer-info h3 { font-size: 16px; font-weight: 600; color: #1c1c1e; margin-bottom: 4px; }
+  .beer-meta { display: flex; gap: 8px; font-size: 13px; color: #8e8e93; }
+
+  .beer-abv { text-align: right; flex-shrink: 0; }
+  .beer-abv .abv-value { font-size: 16px; font-weight: 700; color: #d68a10; }
+  .beer-abv .abv-label { font-size: 10px; color: #8e8e93; }
+
+  .chevron { color: #c7c7cc; font-size: 18px; margin-left: 4px; }
+
+  .tab-bar {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    height: 83px; padding: 8px 0 28px;
+    background: rgba(249, 249, 249, 0.94);
+    backdrop-filter: blur(20px);
+    border-top: 0.5px solid #c6c6c8;
+    display: flex; justify-content: space-around; align-items: flex-start;
+  }
+  .tab-item {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    color: #8e8e93; font-size: 10px; font-weight: 500;
+  }
+  .tab-item.active { color: #e8bb2e; }
+  .tab-item .tab-icon { font-size: 24px; }
+</style>
+</head>
+<body>
+<div class="iphone-frame">
+  <div class="dynamic-island"></div>
+  <div class="status-bar">
+    <span>9:41</span>
+    <div class="status-icons">
+      <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+      <svg viewBox="0 0 24 24"><rect x="2" y="6" width="3" height="16" rx="1"/><rect x="6" y="10" width="3" height="12" rx="1"/><rect x="10" y="4" width="3" height="18" rx="1"/><rect x="14" y="8" width="3" height="14" rx="1"/></svg>
+      <svg viewBox="0 0 24 24"><rect x="2" y="6" width="18" height="12" rx="2" stroke="black" stroke-width="2" fill="none"/><rect x="4" y="8" width="10" height="8" rx="1" fill="black"/><rect x="21" y="10" width="2" height="4" rx="0.5" fill="black"/></svg>
+    </div>
+  </div>
+
+  <div class="nav-header">
+    <h1>Beer Database</h1>
+  </div>
+
+  <div class="search-bar">
+    <span class="search-icon">&#x1F50D;</span>
+    <input type="text" placeholder="Search beers, styles, countries..." disabled>
+  </div>
+
+  <div class="beer-list">
+    <div class="beer-row">
+      <div class="brand-icon"><span>HE</span></div>
+      <div class="beer-info">
+        <h3>Heineken Lager</h3>
+        <div class="beer-meta"><span>Pale Lager</span><span>Netherlands</span></div>
+      </div>
+      <div class="beer-abv"><div class="abv-value">5.0%</div><div class="abv-label">ABV</div></div>
+      <span class="chevron">&#x203A;</span>
+    </div>
+
+    <div class="beer-row">
+      <div class="brand-icon"><span>GU</span></div>
+      <div class="beer-info">
+        <h3>Guinness Draught</h3>
+        <div class="beer-meta"><span>Irish Dry Stout</span><span>Ireland</span></div>
+      </div>
+      <div class="beer-abv"><div class="abv-value">4.2%</div><div class="abv-label">ABV</div></div>
+      <span class="chevron">&#x203A;</span>
+    </div>
+
+    <div class="beer-row">
+      <div class="brand-icon"><span>CO</span></div>
+      <div class="beer-info">
+        <h3>Corona Extra</h3>
+        <div class="beer-meta"><span>Pale Lager</span><span>Mexico</span></div>
+      </div>
+      <div class="beer-abv"><div class="abv-value">4.5%</div><div class="abv-label">ABV</div></div>
+      <span class="chevron">&#x203A;</span>
+    </div>
+
+    <div class="beer-row">
+      <div class="brand-icon"><span>BU</span></div>
+      <div class="beer-info">
+        <h3>Budweiser</h3>
+        <div class="beer-meta"><span>American Lager</span><span>United States</span></div>
+      </div>
+      <div class="beer-abv"><div class="abv-value">5.0%</div><div class="abv-label">ABV</div></div>
+      <span class="chevron">&#x203A;</span>
+    </div>
+
+    <div class="beer-row">
+      <div class="brand-icon"><span>ST</span></div>
+      <div class="beer-info">
+        <h3>Stella Artois</h3>
+        <div class="beer-meta"><span>Belgian Pilsner</span><span>Belgium</span></div>
+      </div>
+      <div class="beer-abv"><div class="abv-value">5.2%</div><div class="abv-label">ABV</div></div>
+      <span class="chevron">&#x203A;</span>
+    </div>
+
+    <div class="beer-row">
+      <div class="brand-icon"><span>CA</span></div>
+      <div class="beer-info">
+        <h3>Carlsberg Pilsner</h3>
+        <div class="beer-meta"><span>Pilsner</span><span>Denmark</span></div>
+      </div>
+      <div class="beer-abv"><div class="abv-value">5.0%</div><div class="abv-label">ABV</div></div>
+      <span class="chevron">&#x203A;</span>
+    </div>
+
+    <div class="beer-row">
+      <div class="brand-icon"><span>BR</span></div>
+      <div class="beer-info">
+        <h3>IPA Punk</h3>
+        <div class="beer-meta"><span>India Pale Ale (IPA)</span><span>Scotland</span></div>
+      </div>
+      <div class="beer-abv"><div class="abv-value">5.4%</div><div class="abv-label">ABV</div></div>
+      <span class="chevron">&#x203A;</span>
+    </div>
+
+    <div class="beer-row">
+      <div class="brand-icon"><span>WE</span></div>
+      <div class="beer-info">
+        <h3>Weihenstephaner Hefeweissbier</h3>
+        <div class="beer-meta"><span>Hefeweizen</span><span>Germany</span></div>
+      </div>
+      <div class="beer-abv"><div class="abv-value">5.4%</div><div class="abv-label">ABV</div></div>
+      <span class="chevron">&#x203A;</span>
+    </div>
+
+    <div class="beer-row">
+      <div class="brand-icon"><span>PU</span></div>
+      <div class="beer-info">
+        <h3>Pilsner Urquell</h3>
+        <div class="beer-meta"><span>Czech Pilsner</span><span>Czech Republic</span></div>
+      </div>
+      <div class="beer-abv"><div class="abv-value">4.4%</div><div class="abv-label">ABV</div></div>
+      <span class="chevron">&#x203A;</span>
+    </div>
+
+    <div class="beer-row">
+      <div class="brand-icon"><span>CH</span></div>
+      <div class="beer-info">
+        <h3>Chimay Blue</h3>
+        <div class="beer-meta"><span>Belgian Strong Dark Ale</span><span>Belgium</span></div>
+      </div>
+      <div class="beer-abv"><div class="abv-value">9.0%</div><div class="abv-label">ABV</div></div>
+      <span class="chevron">&#x203A;</span>
+    </div>
+  </div>
+
+  <div class="tab-bar">
+    <div class="tab-item">
+      <span class="tab-icon">&#x1F4F7;</span>
+      <span>Scan</span>
+    </div>
+    <div class="tab-item active">
+      <span class="tab-icon">&#x1F37A;</span>
+      <span>Beers</span>
+    </div>
+    <div class="tab-item">
+      <span class="tab-icon">&#x1F553;</span>
+      <span>History</span>
+    </div>
+  </div>
+</div>
+</body>
+</html>
